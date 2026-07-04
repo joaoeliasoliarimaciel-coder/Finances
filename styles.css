@@ -1,0 +1,299 @@
+:root {
+  color-scheme: dark;
+  --bg: #07111f;
+  --panel: #0f1b2d;
+  --panel-2: #16263b;
+  --text: #f3f7ff;
+  --muted: #93a7c9;
+  --accent: #41c7ae;
+  --accent-2: #6f7cff;
+  --danger: #ff6987;
+  --warning: #ffbe5c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, Arial, sans-serif;
+  background: linear-gradient(135deg, var(--bg), #101f34);
+  color: var(--text);
+}
+
+.hero {
+  padding: 3rem 1.5rem 2rem;
+  background: radial-gradient(circle at top left, rgba(65, 199, 174, 0.25), transparent 30%);
+}
+
+.hero h1 {
+  margin: 0.2rem 0;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.25rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.subtitle {
+  color: var(--muted);
+  max-width: 650px;
+}
+
+.container {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto 3rem;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.panel,
+.card,
+.chart-card {
+  background: rgba(15, 27, 45, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.panel {
+  padding: 1.25rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.form-grid.compact {
+  grid-template-columns: 1.2fr 1fr 1fr 1.3fr auto;
+}
+
+.accounts-grid {
+  grid-template-columns: 1.1fr 0.9fr 0.9fr 1.3fr auto;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+input,
+select {
+  padding: 0.75rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: white;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+.ghost-button {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  padding: 1rem 1.1rem;
+}
+
+.card p {
+  margin: 0 0 0.25rem;
+  color: var(--muted);
+}
+
+.card strong {
+  font-size: 1.3rem;
+}
+
+.card-income {
+  border-color: rgba(65, 199, 174, 0.3);
+}
+
+.card-expense {
+  border-color: rgba(255, 105, 135, 0.3);
+}
+
+.card-balance {
+  border-color: rgba(255, 190, 92, 0.3);
+}
+
+.card-account {
+  border-color: rgba(111, 124, 255, 0.3);
+}
+
+.card-investment {
+  border-color: rgba(65, 199, 174, 0.3);
+}
+
+.transaction-list,
+.investment-list,
+.account-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.transaction-item,
+.investment-item,
+.account-item {
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.transaction-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.transaction-amount {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.transaction-amount.income {
+  color: var(--accent);
+}
+
+.transaction-amount.expense {
+  color: var(--danger);
+}
+
+.remove-btn {
+  padding: 0.45rem 0.7rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+.account-balance {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.account-balance.negative {
+  color: var(--danger);
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 1rem;
+}
+
+.chart-card {
+  padding: 1rem;
+}
+
+.chart-card h3 {
+  margin-top: 0;
+}
+
+.legend {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.5rem;
+}
+
+.legend-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--muted);
+}
+
+.legend-badge {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-right: 0.45rem;
+}
+
+.empty-state {
+  padding: 1rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  text-align: center;
+}
+
+.inline-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+}
+
+.inline-field input {
+  min-width: 140px;
+}
+
+@media (max-width: 900px) {
+  .form-grid,
+  .form-grid.compact,
+  .accounts-grid,
+  .summary-grid,
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

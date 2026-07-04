@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finanças Pessoais</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Controle financeiro</p>
+        <h1>Finanças Pessoais</h1>
+        <p class="subtitle">
+          Organize gastos, ganhos, investimentos, contas e acompanhe seu saldo em tempo real.
+        </p>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="panel">
+        <div class="section-header">
+          <h2>Nova movimentação</h2>
+          <label class="inline-field">
+            <span>Mês</span>
+            <input type="month" id="period" />
+          </label>
+        </div>
+
+        <form id="transaction-form" class="form-grid">
+          <label>
+            <span>Tipo</span>
+            <select id="type">
+              <option value="expense">Gasto</option>
+              <option value="income">Ganho</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Categoria</span>
+            <select id="category"></select>
+          </label>
+
+          <label>
+            <span>Conta</span>
+            <select id="transaction-account"></select>
+          </label>
+
+          <label>
+            <span>Descrição</span>
+            <input id="description" type="text" placeholder="Ex.: Mercado da semana" required />
+          </label>
+
+          <label>
+            <span>Valor</span>
+            <input id="amount" type="number" min="0.01" step="0.01" placeholder="0,00" required />
+          </label>
+
+          <label>
+            <span>Data</span>
+            <input id="date" type="date" required />
+          </label>
+
+          <button type="submit">Adicionar</button>
+        </form>
+      </section>
+
+      <section class="summary-grid">
+        <article class="card card-income">
+          <p>Ganhos</p>
+          <strong id="income-total">R$ 0,00</strong>
+        </article>
+        <article class="card card-expense">
+          <p>Gastos</p>
+          <strong id="expense-total">R$ 0,00</strong>
+        </article>
+        <article class="card card-balance">
+          <p>Saldo do mês</p>
+          <strong id="balance-total">R$ 0,00</strong>
+        </article>
+        <article class="card card-account">
+          <p>Disponível nas contas</p>
+          <strong id="accounts-total">R$ 0,00</strong>
+        </article>
+        <article class="card card-investment">
+          <p>Patrimônio total</p>
+          <strong id="net-worth">R$ 0,00</strong>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="section-header">
+          <h2>Movimentações</h2>
+          <button id="clear-data" class="ghost-button" type="button">Limpar dados</button>
+        </div>
+        <ul id="transactions-list" class="transaction-list"></ul>
+      </section>
+
+      <section class="panel">
+        <div class="section-header">
+          <h2>Contas</h2>
+        </div>
+
+        <form id="account-form" class="form-grid compact accounts-grid">
+          <label>
+            <span>Conta</span>
+            <select id="account-select"></select>
+          </label>
+          <label>
+            <span>Operação</span>
+            <select id="account-operation">
+              <option value="set">Definir valor</option>
+              <option value="add">Adicionar</option>
+              <option value="subtract">Subtrair</option>
+            </select>
+          </label>
+          <label>
+            <span>Valor</span>
+            <input id="account-amount" type="number" min="0" step="0.01" placeholder="0,00" required />
+          </label>
+          <label>
+            <span>Descrição</span>
+            <input id="account-description" type="text" placeholder="Ex.: Juros, ajuste manual" />
+          </label>
+          <button type="submit">Atualizar conta</button>
+        </form>
+
+        <div id="accounts-list" class="account-list"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Gráficos</h2>
+        <div class="chart-grid">
+          <article class="chart-card">
+            <h3>Receitas x Despesas</h3>
+            <svg id="bar-chart" viewBox="0 0 320 220"></svg>
+          </article>
+          <article class="chart-card">
+            <h3>Despesas por categoria</h3>
+            <svg id="donut-chart" viewBox="0 0 220 220"></svg>
+            <div id="legend" class="legend"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-header">
+          <h2>Investimentos</h2>
+        </div>
+
+        <form id="investment-form" class="form-grid compact">
+          <label>
+            <span>Nome do investimento</span>
+            <input id="investment-name" type="text" placeholder="Ex.: Poupança" required />
+          </label>
+          <label>
+            <span>Valor aplicado</span>
+            <input id="investment-amount" type="number" min="0" step="0.01" placeholder="0,00" required />
+          </label>
+          <label>
+            <span>Onde está aplicado</span>
+            <input id="investment-location" type="text" placeholder="Ex.: Banco, Tesouro, CDB" />
+          </label>
+          <button type="submit">Salvar investimento</button>
+        </form>
+
+        <div id="investments-list" class="investment-list"></div>
+
+        <form id="invest-more-form" class="form-grid compact">
+          <label>
+            <span>Investimento</span>
+            <select id="investment-select"></select>
+          </label>
+          <label>
+            <span>Valor extra</span>
+            <input id="extra-amount" type="number" min="0.01" step="0.01" placeholder="0,00" required />
+          </label>
+          <button type="submit">Adicionar valor</button>
+        </form>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

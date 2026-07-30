@@ -1,5 +1,7 @@
+import hashlib
 import json
 import os
+import secrets
 import uuid
 from datetime import date, datetime, timedelta
 
@@ -66,6 +68,44 @@ def get_credentials():
 
 CREDENTIALS = get_credentials()
 
+USERS_FILE = os.path.join(os.path.dirname(__file__), "users.json")
+
+
+def load_users():
+    """Lê os usuários cadastrados pelo próprio app (criados na tela de 'Criar conta')."""
+    if os.path.exists(USERS_FILE):
+        try:
+            with open(USERS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+
+def save_users(users):
+    with open(USERS_FILE, "w", encoding="utf-8") as f:
+        json.dump(users, f, ensure_ascii=False, indent=2)
+
+
+def hash_password(password: str, salt: str = None) -> str:
+    """Gera um hash seguro (PBKDF2) da senha, usando um salt aleatório por usuário."""
+    if salt is None:
+        salt = secrets.token_hex(16)
+    derived = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("utf-8"), 100_000)
+    return f"{salt}${derived.hex()}"
+
+
+def verify_password(password: str, stored_hash: str) -> bool:
+    try:
+        salt, _ = stored_hash.split("$", 1)
+    except (ValueError, AttributeError):
+        return False
+    return hash_password(password, salt) == stored_hash
+
+
+def username_taken(username: str, registered_users: dict) -> bool:
+    return username in CREDENTIALS or username in registered_users
+
 
 def login_css():
     st.markdown(
@@ -129,6 +169,20 @@ def login_css():
             opacity: 0.9;
             color: #ffffff !important;
         }}
+        div[data-testid="stTabs"] {{
+            max-width: 440px;
+            margin: 0 auto;
+        }}
+        div[data-testid="stTabs"] button[data-baseweb="tab"] {{
+            font-weight: 700;
+            color: {MUTED};
+        }}
+        div[data-testid="stTabs"] button[aria-selected="true"] {{
+            color: {ACCENT} !important;
+        }}
+        div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {{
+            background-color: {ACCENT} !important;
+        }}
         </style>
         """,
         unsafe_allow_html=True,
@@ -142,24 +196,63 @@ def login_screen():
         <div class="login-wrap">
             <div class="icon">💖</div>
             <h1>Nossas Finanças</h1>
-            <p>Entre com seu usuário e senha para acessar</p>
+            <p>Entre com sua conta ou crie uma nova para acessar</p>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    with st.form("login_form"):
-        user = st.text_input("Usuário", placeholder="Digite seu usuário")
-        pwd = st.text_input("Senha", type="password", placeholder="Digite sua senha")
-        submitted = st.form_submit_button("Entrar 💕")
+    tab_login, tab_signup = st.tabs(["Entrar", "Criar conta"])
 
-    if submitted:
-        if user in CREDENTIALS and pwd == CREDENTIALS[user]:
+    with tab_login:
+        with st.form("login_form"):
+            user = st.text_input("Usuário", placeholder="Digite seu usuário", key="login_user")
+            pwd = st.text_input("Senha", type="password", placeholder="Digite sua senha", key="login_pwd")
+            login_submitted = st.form_submit_button("Entrar 💕")
+
+    with tab_signup:
+        st.caption("Crie um usuário e senha para acessar as finanças. Todos que tiverem uma conta veem os mesmos dados.")
+        with st.form("signup_form", clear_on_submit=True):
+            new_user = st.text_input("Escolha um usuário", placeholder="Ex.: joao", key="signup_user")
+            new_pwd = st.text_input("Escolha uma senha", type="password", placeholder="Mínimo 6 caracteres", key="signup_pwd")
+            new_pwd_confirm = st.text_input("Confirme a senha", type="password", key="signup_pwd_confirm")
+            signup_submitted = st.form_submit_button("Criar conta ✨")
+
+    if login_submitted:
+        registered_users = load_users()
+        user_clean = (user or "").strip()
+        if user_clean in CREDENTIALS and pwd == CREDENTIALS[user_clean]:
             st.session_state.authenticated = True
-            st.session_state.username = user
+            st.session_state.username = user_clean
+            st.rerun()
+        elif user_clean in registered_users and verify_password(pwd, registered_users[user_clean].get("password_hash", "")):
+            st.session_state.authenticated = True
+            st.session_state.username = user_clean
             st.rerun()
         else:
             st.error("Usuário ou senha incorretos. Confira e tente novamente.")
+
+    if signup_submitted:
+        registered_users = load_users()
+        user_clean = (new_user or "").strip()
+        if not user_clean or not new_pwd:
+            st.warning("Preencha usuário e senha para criar sua conta.")
+        elif len(new_pwd) < 6:
+            st.warning("A senha precisa ter pelo menos 6 caracteres.")
+        elif new_pwd != new_pwd_confirm:
+            st.warning("As senhas não coincidem. Tente novamente.")
+        elif username_taken(user_clean, registered_users):
+            st.warning("Esse usuário já existe. Escolha outro nome ou faça login na aba 'Entrar'.")
+        else:
+            registered_users[user_clean] = {
+                "password_hash": hash_password(new_pwd),
+                "created_at": datetime.now().isoformat(),
+            }
+            save_users(registered_users)
+            st.session_state.authenticated = True
+            st.session_state.username = user_clean
+            st.success("Conta criada com sucesso! Entrando...")
+            st.rerun()
 
 
 if "authenticated" not in st.session_state:

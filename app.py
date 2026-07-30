@@ -53,9 +53,15 @@ PANEL_2 = "#fff0f6"
 BG_1 = "#ffe4e1"          
 BG_2 = "#ffb6c1"          
 
+# Padrão de fundo com laços e flores (SVG Data URI)
+BG_PATTERN = "url(\"data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='20' y='40' font-size='22' opacity='0.35'%3E🌸%3C/text%3E%3Ctext x='80' y='90' font-size='22' opacity='0.35'%3E🎀%3C/text%3E%3C/svg%3E\")"
+
 # Configuração da página do Streamlit
 st.set_page_config(page_title="Nossas Finanças", page_icon="🎀", layout="wide")
 
+# Inicializa o estado para a reação da princesa
+if "princess_reaction" not in st.session_state:
+    st.session_state.princess_reaction = None
 
 # ============================================================================
 # 2. SISTEMA DE LOGIN E USUÁRIOS
@@ -110,9 +116,10 @@ def login_css():
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Poppins:wght@400;500;600;700&display=swap');
         html, body, [class*="css"] {{ font-family: 'Poppins', sans-serif; }}
         .stApp {{
-            background: radial-gradient(circle at 15% 10%, {BG_2}, transparent 55%),
-                        radial-gradient(circle at 85% 90%, #ffcbe0, transparent 55%),
-                        {BG_1};
+            background-color: {BG_1};
+            background-image: {BG_PATTERN},
+                              radial-gradient(circle at 15% 10%, {BG_2}, transparent 55%),
+                              radial-gradient(circle at 85% 90%, #ffcbe0, transparent 55%);
         }}
         .login-wrap {{
             max-width: 440px;
@@ -334,17 +341,26 @@ st.markdown(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Poppins:wght@400;500;600;700;800&display=swap');
     html, body, [class*="css"] {{ font-family: 'Poppins', sans-serif; }}
-    .stApp {{ background: radial-gradient(circle at 10% 0%, {BG_2}, transparent 50%), radial-gradient(circle at 90% 100%, #ffcbe0, transparent 50%), {BG_1}; color: {TEXT}; }}
+    
+    /* Novo fundo com flores e laços */
+    .stApp {{ 
+        background-color: {BG_1};
+        background-image: {BG_PATTERN}, 
+                          radial-gradient(circle at 10% 0%, {BG_2}, transparent 50%), 
+                          radial-gradient(circle at 90% 100%, #ffcbe0, transparent 50%); 
+        color: {TEXT}; 
+    }}
+    
     .block-container {{ max-width: 1200px; padding-top: 1.5rem; }}
     
-    .hero {{ padding: 2.5rem 2.2rem; border-radius: 26px; background: linear-gradient(120deg, #ffffff, {PANEL_2}); border: 2px solid {ACCENT}; margin-bottom: 2rem; box-shadow: 0 18px 45px rgba(255, 20, 147, 0.2); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }}
+    .hero {{ padding: 2.5rem 2.2rem; border-radius: 26px; background: linear-gradient(120deg, rgba(255,255,255,0.95), rgba(255,240,246,0.95)); border: 2px solid {ACCENT}; margin-bottom: 2rem; box-shadow: 0 18px 45px rgba(255, 20, 147, 0.2); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; backdrop-filter: blur(5px); }}
     .hero .eyebrow {{ margin: 0; text-transform: uppercase; letter-spacing: 0.25rem; color: {ACCENT}; font-weight: 800; font-size: 0.85rem; }}
     .hero h1 {{ font-family: 'Playfair Display', serif; margin: 0.15rem 0; font-size: 2.8rem; color: {TEXT}; font-weight: 700; }}
     .hero p.subtitle {{ color: {TEXT}; max-width: 620px; margin: 0; font-weight: 500; font-size: 1.05rem; }}
     .hero .hero-icon {{ font-size: 4rem; text-shadow: 2px 2px 15px rgba(255,20,147,0.3); }}
 
     .panel-title {{ font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: {TEXT}; margin-bottom: 1rem; border-bottom: 2px solid rgba(255,20,147,0.2); padding-bottom: 0.5rem; }}
-    div[data-testid="stVerticalBlockBorderWrapper"] {{ background: {PANEL}; border: 2px solid rgba(255, 20, 147, 0.3) !important; border-radius: 22px !important; box-shadow: 0 12px 30px rgba(255, 20, 147, 0.12); padding: 0.5rem; }}
+    div[data-testid="stVerticalBlockBorderWrapper"] {{ background: rgba(255,255,255,0.9); border: 2px solid rgba(255, 20, 147, 0.3) !important; border-radius: 22px !important; box-shadow: 0 12px 30px rgba(255, 20, 147, 0.12); padding: 0.5rem; backdrop-filter: blur(5px); }}
     
     div[data-testid="stMetric"] {{ background: {PANEL_2}; border-radius: 16px; padding: 1rem; border: 2px solid rgba(255, 20, 147, 0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }}
     div[data-testid="stMetricLabel"] {{ color: {TEXT}; font-weight: 700; font-size: 1rem; }}
@@ -379,7 +395,7 @@ st.markdown(
     .inv-gain.positive {{ color: {SUCCESS}; }}
     .inv-gain.neutral {{ color: {MUTED}; }}
 
-    section[data-testid="stSidebar"] {{ background: {PANEL_2}; border-right: 2px solid rgba(255,20,147,0.2); }}
+    section[data-testid="stSidebar"] {{ background: rgba(255, 240, 246, 0.95); border-right: 2px solid rgba(255,20,147,0.2); backdrop-filter: blur(5px); }}
     </style>
     """,
     unsafe_allow_html=True,
@@ -418,6 +434,31 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+# --- REAÇÃO DA PRINCESA APÓS NOVA MOVIMENTAÇÃO ---
+if st.session_state.princess_reaction == "happy":
+    st.markdown(
+        f"""
+        <div style="background: rgba(232, 245, 233, 0.9); border: 2px solid {SUCCESS}; padding: 1.5rem; border-radius: 20px; text-align: center; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); backdrop-filter: blur(4px);">
+            <div style="font-size: 5rem;">👱🏻‍♀️✨💖😊</div>
+            <h3 style="color: {SUCCESS}; font-family: 'Playfair Display', serif; margin-top: 0.5rem; font-weight: 700;">Eba! Um novo ganho registrado!</h3>
+        </div>
+        """, unsafe_allow_html=True
+    )
+    st.balloons()  # Solta balões na tela!
+    st.session_state.princess_reaction = None  # Limpa a reação
+
+elif st.session_state.princess_reaction == "sad":
+    st.markdown(
+        f"""
+        <div style="background: rgba(255, 235, 238, 0.9); border: 2px solid {DANGER}; padding: 1.5rem; border-radius: 20px; text-align: center; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); backdrop-filter: blur(4px);">
+            <div style="font-size: 5rem;">👱🏻‍♀️💧🥺💔</div>
+            <h3 style="color: {DANGER}; font-family: 'Playfair Display', serif; margin-top: 0.5rem; font-weight: 700;">Poxa... Lá se foi um dinheirinho.</h3>
+        </div>
+        """, unsafe_allow_html=True
+    )
+    st.snow()  # Faz nevar na tela (clima dramático!)
+    st.session_state.princess_reaction = None  # Limpa a reação
 
 
 # ============================================================================
@@ -481,6 +522,13 @@ with st.container(border=True):
 
                 state["transactions"].insert(0, payload)
                 save_state()
+                
+                # Define a reação da princesa antes de recarregar a página!
+                if payload["type"] == "income":
+                    st.session_state.princess_reaction = "happy"
+                else:
+                    st.session_state.princess_reaction = "sad"
+                    
                 st.rerun()
 
 

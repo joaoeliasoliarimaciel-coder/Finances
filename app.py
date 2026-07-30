@@ -12,17 +12,14 @@ import streamlit as st
 # 1. CONFIGURAÇÕES E CONSTANTES
 # ============================================================================
 
-# Caminho do banco de dados (arquivo JSON onde tudo fica salvo)
 DATA_FILE = os.path.join(os.path.dirname(__file__), "finances_data.json")
 
-# Categorias padrão
 EXPENSE_CATEGORIES = [
     "Compras", "Roupa", "Casa", "Carro", "Imprevistos", "Condomínio",
     "Luz", "Internet", "Celular", "Gasolina", "Mercado", "Ifood", "Saídas",
 ]
 INCOME_CATEGORIES = ["Salário João", "Salário Emily", "Extra", "Rendimento", "Outro"]
 
-# Contas bancárias padrão 
 DEFAULT_ACCOUNTS = [
     {"id": "bb-joao", "name": "Banco do Brasil - João", "balance": 0.0},
     {"id": "bb-emily", "name": "Banco do Brasil Emily", "balance": 0.0},
@@ -33,14 +30,10 @@ DEFAULT_ACCOUNTS = [
 
 RATE_PERIODS = ["Mensal", "Anual"]
 
-# --- PALETA DE CORES ---
-COLORS = [
-    "#CC79A7", "#0072B2", "#E69F00", "#009E73", "#56B4E9", "#D55E00", "#F0E442",
-]
+COLORS = ["#CC79A7", "#0072B2", "#E69F00", "#009E73", "#56B4E9", "#D55E00", "#F0E442"]
 
 SUCCESS_CHART = "#009E73"  
 DANGER_CHART = "#D55E00"   
-
 ACCENT = "#ff1493"        
 ACCENT_2 = "#d500f9"      
 DANGER = "#b71c1c"        
@@ -53,18 +46,16 @@ PANEL_2 = "#fff0f6"
 BG_1 = "#ffe4e1"          
 BG_2 = "#ffb6c1"          
 
-# Padrão de fundo atualizado: Flores, Coroas, Estrelas e Laços (SVG Data URI)
+# Fundo atualizado: Flores, Coroas, Estrelas e Laços
 BG_PATTERN = "url(\"data:image/svg+xml,%3Csvg width='160' height='160' viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='20' y='40' font-size='24' opacity='0.35'%3E🌸%3C/text%3E%3Ctext x='100' y='40' font-size='24' opacity='0.35'%3E👑%3C/text%3E%3Ctext x='20' y='120' font-size='24' opacity='0.35'%3E⭐%3C/text%3E%3Ctext x='100' y='120' font-size='24' opacity='0.35'%3E🎀%3C/text%3E%3C/svg%3E\")"
 
-# Configuração da página do Streamlit
-st.set_page_config(page_title="Nossas Finanças", page_icon="🎀", layout="wide")
+st.set_page_config(page_title="Nossas Finanças", page_icon="👑", layout="wide")
 
-# Inicializa o estado para a reação animada
 if "princess_reaction" not in st.session_state:
     st.session_state.princess_reaction = None
 
 # ============================================================================
-# 2. SISTEMA DE LOGIN E USUÁRIOS
+# 2. SISTEMA DE LOGIN
 # ============================================================================
 
 def get_credentials():
@@ -141,9 +132,6 @@ def login_css():
             border: 0; border-radius: 12px; font-weight: 700; background: linear-gradient(135deg, {ACCENT}, {ACCENT_2});
             color: #ffffff !important; width: 100%; padding: 0.75rem 1.1rem;
         }}
-        div[data-testid="stTabs"] {{ max-width: 440px; margin: 0 auto; }}
-        div[data-testid="stTabs"] button[aria-selected="true"] {{ color: {ACCENT} !important; }}
-        div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {{ background-color: {ACCENT} !important; height: 4px; }}
         </style>
         """,
         unsafe_allow_html=True,
@@ -151,7 +139,7 @@ def login_css():
 
 def login_screen():
     login_css()
-    st.markdown('<div class="login-wrap"><div class="icon">🌸</div><h1>Nossas Finanças</h1><p>Entre com sua conta.</p></div>', unsafe_allow_html=True)
+    st.markdown('<div class="login-wrap"><div class="icon">👑</div><h1>Nossas Finanças</h1><p>Entre com sua conta.</p></div>', unsafe_allow_html=True)
 
     tab_login, tab_signup = st.tabs(["Entrar", "Criar conta"])
 
@@ -208,7 +196,7 @@ if not st.session_state.authenticated:
 
 
 # ============================================================================
-# 3. SALVAMENTO E CARREGAMENTO DE DADOS
+# 3. SALVAMENTO E CARREGAMENTO
 # ============================================================================
 
 def default_state():
@@ -226,7 +214,7 @@ def migrate_investments(investments):
             inv = {
                 "id": inv.get("id", str(uuid.uuid4())),
                 "name": inv.get("name", "Investimento"),
-                "location": inv.get("location", "Sem local informado"),
+                "location": inv.get("location", "Sem local"),
                 "initial_amount": float(inv.get("amount", 0.0)),
                 "rate": 0.0,
                 "rate_period": "Mensal",
@@ -238,7 +226,7 @@ def migrate_investments(investments):
             inv.setdefault("rate", 0.0)
             inv.setdefault("rate_period", "Mensal")
             inv.setdefault("start_date", date.today().isoformat())
-            inv.setdefault("location", "Sem local informado")
+            inv.setdefault("location", "Sem local")
         migrated.append(inv)
     return migrated
 
@@ -326,7 +314,6 @@ def investment_current_value(inv, as_of: date = None) -> float:
         value += c["amount"] * (1 + r_m) ** months_elapsed(c["date"], as_of)
     return value
 
-
 def rate_label(inv) -> str:
     rate = inv.get("rate", 0.0)
     period = "ao mês" if inv.get("rate_period", "Mensal") == "Mensal" else "ao ano"
@@ -380,21 +367,10 @@ st.markdown(
     .t-amount.expense {{ color: {DANGER}; }}
     .acc-balance {{ font-weight: 800; font-size: 1.2rem; color: {SUCCESS}; }}
     .acc-balance.negative {{ color: {DANGER}; }}
-    .empty-state {{ padding: 1.5rem; border-radius: 16px; background: {PANEL_2}; color: {TEXT}; text-align: center; font-weight: 600; border: 2px dashed rgba(255,20,147,0.4); }}
     
-    .legend-item {{ display:flex; justify-content: space-between; color: {TEXT}; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.05rem; }}
-    .legend-badge {{ width: 14px; height: 14px; border-radius: 4px; display:inline-block; margin-right: 0.6rem; border: 1px solid rgba(0,0,0,0.1); }}
-
     .inv-card {{ padding: 1.2rem 1.4rem; border-radius: 20px; background: {PANEL_2}; border: 2px solid rgba(255,20,147,0.25); margin-bottom: 1rem; }}
-    .inv-card .inv-top {{ display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }}
     .inv-card .inv-name {{ font-weight: 800; color: {TEXT}; font-size: 1.2rem; }}
-    .inv-card .inv-meta {{ color: {MUTED}; font-size: 0.95rem; font-weight: 600; margin-top: 0.2rem; }}
-    .inv-badge {{ display:inline-block; padding: 0.25rem 0.7rem; border-radius: 999px; background: {ACCENT}; color: white; font-size: 0.85rem; font-weight: 700; }}
-    .inv-value {{ font-size: 1.4rem; font-weight: 800; color: {TEXT}; text-align: right; }}
-    .inv-gain {{ font-size: 0.95rem; font-weight: 700; text-align: right; margin-top: 0.2rem; }}
-    .inv-gain.positive {{ color: {SUCCESS}; }}
-    .inv-gain.neutral {{ color: {MUTED}; }}
-
+    
     section[data-testid="stSidebar"] {{ background: rgba(255, 240, 246, 0.95); border-right: 2px solid rgba(255,20,147,0.2); backdrop-filter: blur(5px); }}
     </style>
     """,
@@ -427,7 +403,7 @@ st.markdown(
         <div>
             <p class="eyebrow">Controle financeiro do casal</p>
             <h1>Nossas Finanças</h1>
-            <p class="subtitle">Organize gastos, ganhos, investimentos e acompanhe o patrimônio com clareza.</p>
+            <p class="subtitle">Organize gastos, ganhos e acompanhe o patrimônio.</p>
         </div>
         <div class="hero-icon">👑</div>
     </div>
@@ -437,53 +413,42 @@ st.markdown(
 
 
 # ============================================================================
-# 7. ANIMAÇÕES DA PRINCESA (MOVIMENTO COM GIF)
+# 7. ANIMAÇÕES DA PRINCESA (APENAS A PRINCESA)
 # ============================================================================
-# Injeta HTML/CSS de movimento e depois limpa o estado, 
-# assim a animação acontece e não se repete na próxima vez que a página recarregar.
+# Mudança: O z-index agora é super alto (999999) para não ficar escondida atrás de nada.
+# As funções de balões e neve foram 100% removidas.
 
 if st.session_state.princess_reaction == "happy":
-    # Princesa loira feliz, saltitando atravessando a tela.
     st.markdown(
         """
         <style>
         .happy-princess {
             position: fixed;
-            bottom: 20px;
+            bottom: 30px;
             left: -300px;
-            z-index: 99999;
+            z-index: 999999 !important;
             animation: runAcross 4.5s linear forwards;
             pointer-events: none;
         }
         @keyframes runAcross {
-            0% { left: -300px; transform: scaleX(1); }
-            10% { left: 10%; transform: scaleX(1) translateY(-30px); }
-            20% { left: 20%; transform: scaleX(1) translateY(0); }
-            30% { left: 30%; transform: scaleX(1) translateY(-30px); }
-            40% { left: 40%; transform: scaleX(1) translateY(0); }
-            50% { left: 50%; transform: scaleX(1) translateY(-30px); }
-            60% { left: 60%; transform: scaleX(1) translateY(0); }
-            70% { left: 70%; transform: scaleX(1) translateY(-30px); }
-            80% { left: 80%; transform: scaleX(1) translateY(0); }
-            100% { left: 120%; transform: scaleX(1) translateY(0); visibility: hidden; }
+            0% { left: -300px; }
+            100% { left: 110vw; visibility: hidden; }
         }
         </style>
         <img src="https://media.tenor.com/7wMvD2hT4l4AAAAi/cinderella-disney.gif" class="happy-princess" width="280">
         """, unsafe_allow_html=True
     )
-    st.balloons()
     st.session_state.princess_reaction = None 
 
 elif st.session_state.princess_reaction == "sad":
-    # Princesa loira triste, subindo devagar pelo canto direito e descendo novamente.
     st.markdown(
         """
         <style>
         .sad-princess {
             position: fixed;
             bottom: -350px;
-            right: 8%;
-            z-index: 99999;
+            right: 5%;
+            z-index: 999999 !important;
             animation: riseAndCry 5.5s ease-in-out forwards;
             pointer-events: none;
         }
@@ -497,7 +462,6 @@ elif st.session_state.princess_reaction == "sad":
         <img src="https://media.tenor.com/L4u2zEEDN20AAAAi/crying-cinderella.gif" class="sad-princess" width="280">
         """, unsafe_allow_html=True
     )
-    st.snow()
     st.session_state.princess_reaction = None 
 
 
@@ -563,7 +527,7 @@ with st.container(border=True):
                 state["transactions"].insert(0, payload)
                 save_state()
                 
-                # Seta o estado da animação que será ativado quando a página recarregar!
+                # Seta o estado da animação 
                 if payload["type"] == "income":
                     st.session_state.princess_reaction = "happy"
                 else:
@@ -573,7 +537,7 @@ with st.container(border=True):
 
 
 # ============================================================================
-# 9. CÁLCULOS TOTAIS E MÉTRICAS PRINCIPAIS
+# 9. CÁLCULOS TOTAIS E MÉTRICAS
 # ============================================================================
 
 current_transactions = [t for t in state["transactions"] if t["month"] == state["period"]]
@@ -581,9 +545,7 @@ income = sum(t["amount"] for t in current_transactions if t["type"] == "income")
 expenses = sum(t["amount"] for t in current_transactions if t["type"] == "expense")
 balance = income - expenses
 accounts_total = sum(a["balance"] for a in state["accounts"])
-invested_principal_total = sum(investment_principal(i) for i in state["investments"])
 invested_current_total = sum(investment_current_value(i) for i in state["investments"])
-investment_gain_total = invested_current_total - invested_principal_total
 net_worth = accounts_total + invested_current_total
 
 st.write("")
@@ -624,7 +586,7 @@ with st.container(border=True):
                 st.rerun()
 
     if not current_transactions:
-        st.markdown('<div class="empty-state">Nenhuma movimentação neste mês! 🌷</div>', unsafe_allow_html=True)
+        st.markdown('<div style="text-align:center; padding:1.5rem; color:#5c3a58;">Nenhuma movimentação neste mês! 🌷</div>', unsafe_allow_html=True)
     else:
         for t in current_transactions:
             meta_line = f'{t["category"]} • {t["date"]}'
@@ -648,288 +610,3 @@ with st.container(border=True):
                         state["transactions"] = [x for x in state["transactions"] if x["id"] != t["id"]]
                         save_state()
                         st.rerun()
-
-
-# ============================================================================
-# 11. GRÁFICOS VISUAIS E ANÁLISE DE DADOS
-# ============================================================================
-
-with st.container(border=True):
-    st.markdown('<div class="panel-title">Análise Financeira 📊</div>', unsafe_allow_html=True)
-
-    g1, g2 = st.columns([1.2, 0.8])
-
-    # --- GRÁFICO 1: BARRAS (Ganhos vs Gastos) ---
-    with g1:
-        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Receitas x Despesas</span>**", unsafe_allow_html=True)
-        bar_fig = go.Figure(
-            data=[
-                go.Bar(
-                    x=["Ganhos", "Gastos"],
-                    y=[income, expenses],
-                    marker_color=[SUCCESS_CHART, DANGER_CHART], 
-                    marker_line=dict(color=TEXT, width=1.5),    
-                    text=[format_currency(income), format_currency(expenses)],
-                    textposition="auto",
-                    textfont=dict(color="white", size=16), 
-                    width=0.4,
-                )
-            ]
-        )
-        bar_fig.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(color=TEXT, family="Poppins", size=14),
-            yaxis=dict(
-                showgrid=True, 
-                gridcolor="rgba(0,0,0,0.35)",
-                zeroline=True,                
-                zerolinecolor=TEXT,           
-                zerolinewidth=2,              
-                visible=True,
-                color=TEXT                    
-            ),
-            xaxis=dict(
-                showgrid=False, 
-                showline=True,                
-                linewidth=2,                  
-                linecolor=TEXT,               
-                color=TEXT, 
-                tickfont=dict(size=15, color=TEXT)
-            ), 
-            margin=dict(l=10, r=10, t=30, b=10),
-            height=320,
-            showlegend=False,
-        )
-        
-        st.plotly_chart(bar_fig, use_container_width=True, theme=None)
-       
-    # --- GRÁFICO 2: ROSCA (Despesas por Categoria) ---
-    with g2:
-        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Despesas por categoria</span>**", unsafe_allow_html=True)
-        
-        expense_items = [t for t in current_transactions if t["type"] == "expense"]
-        totals_by_cat = {}
-        for t in expense_items:
-            totals_by_cat[t["category"]] = totals_by_cat.get(t["category"], 0) + t["amount"]
-
-        if not totals_by_cat:
-            donut_fig = go.Figure(data=[go.Pie(labels=["Sem dados"], values=[1], hole=0.65, marker=dict(colors=[PANEL_2]), textinfo="none")])
-        else:
-            labels = list(totals_by_cat.keys())
-            values = list(totals_by_cat.values())
-            donut_fig = go.Figure(
-                data=[
-                    go.Pie(
-                        labels=labels,
-                        values=values,
-                        hole=0.65,
-                        marker=dict(colors=COLORS * 3, line=dict(color=PANEL, width=3)),
-                        textinfo="none",
-                    )
-                ]
-            )
-
-        donut_fig.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(color=TEXT, family="Poppins"),
-            margin=dict(l=10, r=10, t=30, b=10),
-            height=320,
-            showlegend=False,
-            annotations=[dict(
-                text=f"Total:<br>{format_currency(sum(totals_by_cat.values()))}" if totals_by_cat else "Sem dados",
-                x=0.5, y=0.5, font_size=16, showarrow=False, font_color=TEXT
-            )],
-        )
-        
-        st.plotly_chart(donut_fig, use_container_width=True)
-
-        if totals_by_cat:
-            for idx, (name, value) in enumerate(totals_by_cat.items()):
-                color = COLORS[idx % len(COLORS)]
-                st.markdown(
-                    f"""
-                    <div class="legend-item">
-                        <span style="display:flex; align-items:center;">
-                            <span class="legend-badge" style="background:{color}; border: 2px solid {TEXT};"></span>{name}
-                        </span>
-                        <strong>{format_currency(value)}</strong>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-
-
-# ============================================================================
-# 12. GESTÃO DE CONTAS BANCÁRIAS
-# ============================================================================
-
-with st.container(border=True):
-    st.markdown('<div class="panel-title">Minhas Contas 💳</div>', unsafe_allow_html=True)
-
-    with st.form("account_form", clear_on_submit=True):
-        ac1, ac2, ac3, ac4 = st.columns(4)
-        with ac1: acc_choice = st.selectbox("Conta", [a["name"] for a in state["accounts"]])
-        with ac2: operation = st.selectbox("Operação", ["Definir valor", "Adicionar", "Subtrair"])
-        with ac3: acc_amount = st.number_input("Valor", min_value=0.0, step=0.01, format="%.2f", key="acc_amount")
-        with ac4: acc_description = st.text_input("Descrição", placeholder="Ex.: Ajuste manual", key="acc_desc")
-
-        acc_submitted = st.form_submit_button("Atualizar Conta")
-
-        if acc_submitted:
-            acc = next((a for a in state["accounts"] if a["name"] == acc_choice), None)
-            if acc:
-                if operation == "Definir valor": acc["balance"] = float(acc_amount)
-                elif operation == "Adicionar": acc["balance"] += float(acc_amount)
-                else: acc["balance"] -= float(acc_amount)
-
-                if acc_description.strip():
-                    state["transactions"].insert(0, {
-                        "id": str(uuid.uuid4()),
-                        "type": "expense" if operation == "Subtrair" else "income",
-                        "category": "Ajuste",
-                        "description": acc_description.strip(),
-                        "amount": float(acc_amount),
-                        "date": date.today().isoformat(),
-                        "month": state["period"],
-                        "accountId": acc["id"],
-                        "accountName": acc["name"],
-                    })
-                save_state()
-                st.rerun()
-
-    if not state["accounts"]:
-        st.markdown('<div class="empty-state">Nenhuma conta.</div>', unsafe_allow_html=True)
-    else:
-        for a in state["accounts"]:
-            neg = a["balance"] < 0
-            st.markdown(
-                f"""
-                <div class="account-item">
-                    <div>
-                        <strong>{a['name']}</strong>
-                        <div style="color:{MUTED}; font-size:0.9rem; font-weight: 600;">{'Saldo negativo' if neg else 'Saldo disponível'}</div>
-                    </div>
-                    <div class="acc-balance {'negative' if neg else ''}">{format_currency(a['balance'])}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
-
-# ============================================================================
-# 13. GESTÃO DE INVESTIMENTOS E APORTES
-# ============================================================================
-
-with st.container(border=True):
-    st.markdown('<div class="panel-title">Meus Investimentos 📈</div>', unsafe_allow_html=True)
-    st.caption("O valor de cada investimento é recalculado automaticamente com base na taxa de juros e no tempo desde o aporte.")
-
-    iv1, iv2, iv3 = st.columns(3)
-    iv1.metric("Total aportado", format_currency(invested_principal_total))
-    iv2.metric("Valor atual (com juros)", format_currency(invested_current_total))
-    iv3.metric("Rendimento acumulado", format_currency(investment_gain_total))
-
-    st.write("")
-    
-    with st.form("investment_form", clear_on_submit=True):
-        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Novo investimento</span>**", unsafe_allow_html=True)
-        ic1, ic2, ic3 = st.columns(3)
-        with ic1: inv_name = st.text_input("Nome", placeholder="Ex.: Poupança")
-        with ic2: inv_amount = st.number_input("Valor inicial", min_value=0.0, step=0.01, format="%.2f", key="inv_amount")
-        with ic3: inv_location = st.text_input("Local", placeholder="Ex.: Banco do Brasil")
-
-        ic4, ic5, ic6 = st.columns(3)
-        with ic4: inv_rate = st.number_input("Taxa de juros (%)", min_value=0.0, step=0.01, format="%.2f", key="inv_rate")
-        with ic5: inv_rate_period = st.selectbox("Período", RATE_PERIODS, key="inv_rate_period")
-        with ic6: inv_start = st.date_input("Data de início", value=date.today(), key="inv_start")
-
-        inv_submitted = st.form_submit_button("Salvar investimento 💰")
-
-        if inv_submitted:
-            if not inv_name.strip():
-                st.warning("Informe um nome para o investimento.")
-            else:
-                state["investments"].append({
-                    "id": str(uuid.uuid4()),
-                    "name": inv_name.strip(),
-                    "location": inv_location.strip() or "Sem local",
-                    "initial_amount": float(inv_amount),
-                    "rate": float(inv_rate),
-                    "rate_period": inv_rate_period,
-                    "start_date": inv_start.isoformat(),
-                    "contributions": [],
-                })
-                save_state()
-                st.rerun()
-
-    st.write("")
-
-    if not state["investments"]:
-        st.markdown('<div class="empty-state">Nenhum investimento cadastrado.</div>', unsafe_allow_html=True)
-    else:
-        for inv in state["investments"]:
-            current_value = investment_current_value(inv)
-            principal = investment_principal(inv)
-            gain = current_value - principal
-            gain_cls = "positive" if gain > 0.005 else "neutral"
-            gain_sign = "+" if gain >= 0 else ""
-
-            st.markdown(
-                f"""
-                <div class="inv-card">
-                    <div class="inv-top">
-                        <div>
-                            <div class="inv-name">{inv['name']}</div>
-                            <div class="inv-meta">{inv['location']} • desde {inv['start_date']}</div>
-                            <div style="margin-top:0.6rem;"><span class="inv-badge">{rate_label(inv)}</span></div>
-                        </div>
-                        <div>
-                            <div class="inv-value">{format_currency(current_value)}</div>
-                            <div class="inv-gain {gain_cls}">{gain_sign}{format_currency(gain)} de rendimento</div>
-                        </div>
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-            rm_col = st.columns([5, 1])[1]
-            with rm_col:
-                if st.button("Remover", key=f"rm_i_{inv['id']}"):
-                    state["investments"] = [x for x in state["investments"] if x["id"] != inv["id"]]
-                    save_state()
-                    st.rerun()
-
-    st.write("")
-    
-    with st.form("invest_more_form", clear_on_submit=True):
-        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Adicionar aporte a um investimento</span>**", unsafe_allow_html=True)
-        if state["investments"]:
-            im1, im2, im3 = st.columns([2, 1, 1])
-            with im1:
-                inv_choice = st.selectbox(
-                    "Investimento",
-                    [f'{i["name"]} — {format_currency(investment_current_value(i))}' for i in state["investments"]],
-                )
-            with im2: extra_amount = st.number_input("Valor do aporte", min_value=0.0, step=0.01, format="%.2f", key="extra_amount")
-            with im3: extra_date = st.date_input("Data", value=date.today(), key="extra_date")
-            
-            extra_submitted = st.form_submit_button("Adicionar aporte 💎")
-
-            if extra_submitted:
-                if extra_amount <= 0:
-                    st.warning("Informe um valor maior que zero.")
-                else:
-                    labels = [f'{i["name"]} — {format_currency(investment_current_value(i))}' for i in state["investments"]]
-                    idx = labels.index(inv_choice)
-                    state["investments"][idx].setdefault("contributions", []).append({
-                        "id": str(uuid.uuid4()),
-                        "amount": float(extra_amount),
-                        "date": extra_date.isoformat(),
-                    })
-                    save_state()
-                    st.rerun()
-        else:
-            st.caption("Cadastre um investimento primeiro.")
-            st.form_submit_button("Adicionar aporte", disabled=True)

@@ -30,22 +30,22 @@ DEFAULT_ACCOUNTS = [
 
 RATE_PERIODS = ["Mensal", "Anual"]
 
-# Paleta "girly" vibrante: pink, lilás e coral, com bom contraste de leitura
-COLORS = ["#ff6fa5", "#a06cff", "#ff9ecf", "#5ec8d8", "#ffb347", "#c084fc", "#ff8bab"]
+# Paleta Barbie Profissional: Pink, Magenta e tons elegantes com ALTO contraste
+COLORS = ["#ff1493", "#9c27b0", "#ff69b4", "#00bcd4", "#ff9800", "#e040fb", "#f50057"]
 
-ACCENT = "#ff4d94"        # pink vibrante (principal)
-ACCENT_2 = "#a259ff"      # lilás vibrante
-DANGER = "#e5484d"        # vermelho coral (bem legível)
-WARNING = "#d97b06"       # âmbar escuro (legível em fundo claro)
-SUCCESS = "#1f9d63"       # verde esmeralda (bem legível)
-MUTED = "#6b5b73"         # cinza-arroxeado escuro o bastante para ler
-TEXT = "#2c1b30"          # quase preto arroxeado — alto contraste
-PANEL = "#ffffff"
-PANEL_2 = "#fdf1f8"
-BG_1 = "#fff5fb"
-BG_2 = "#f6ecff"
+ACCENT = "#ff1493"        # Deep Barbie Pink (Principal)
+ACCENT_2 = "#d500f9"      # Roxo/Lilás vibrante
+DANGER = "#b71c1c"        # Vermelho bem escuro para legibilidade máxima em fundos claros
+WARNING = "#e65100"       # Laranja/Âmbar escuro
+SUCCESS = "#0a7040"       # Verde escuro, excelente legibilidade
+MUTED = "#5c3a58"         # Cinza-arroxeado escuro (bem legível)
+TEXT = "#1f0a1c"          # Quase preto com fundo magenta - ALTO CONTRASTE
+PANEL = "#ffffff"         # Branco puro para os cards (fundo perfeito para leitura)
+PANEL_2 = "#fff0f6"       # Rosa extremamente claro para fundos secundários
+BG_1 = "#ffe4e1"          # Fundo geral rosa pastel
+BG_2 = "#ffb6c1"          # Detalhes de gradiente em rosa claro
 
-st.set_page_config(page_title="Nossas Finanças", page_icon="💗", layout="wide")
+st.set_page_config(page_title="Nossas Finanças", page_icon="🎀", layout="wide")
 
 # ----------------------------------------------------------------------------
 # Login
@@ -60,19 +60,14 @@ def get_credentials():
                 return creds
     except Exception:
         pass
-    # Login padrão de fábrica — troque em "Settings > Secrets" no Streamlit Cloud:
-    # [credentials]
-    # casal = "sua_senha_aqui"
     return {"casal": "financas2026"}
 
 
 CREDENTIALS = get_credentials()
-
 USERS_FILE = os.path.join(os.path.dirname(__file__), "users.json")
 
 
 def load_users():
-    """Lê os usuários cadastrados pelo próprio app (criados na tela de 'Criar conta')."""
     if os.path.exists(USERS_FILE):
         try:
             with open(USERS_FILE, "r", encoding="utf-8") as f:
@@ -88,7 +83,6 @@ def save_users(users):
 
 
 def hash_password(password: str, salt: str = None) -> str:
-    """Gera um hash seguro (PBKDF2) da senha, usando um salt aleatório por usuário."""
     if salt is None:
         salt = secrets.token_hex(16)
     derived = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("utf-8"), 100_000)
@@ -111,11 +105,11 @@ def login_css():
     st.markdown(
         f"""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Poppins:wght@400;500;600;700&display=swap');
         html, body, [class*="css"] {{ font-family: 'Poppins', sans-serif; }}
         .stApp {{
             background: radial-gradient(circle at 15% 10%, {BG_2}, transparent 55%),
-                        radial-gradient(circle at 85% 90%, #ffe3f0, transparent 55%),
+                        radial-gradient(circle at 85% 90%, #ffcbe0, transparent 55%),
                         {BG_1};
         }}
         .login-wrap {{
@@ -124,18 +118,19 @@ def login_css():
             padding: 2.4rem 2.2rem 1.4rem 2.2rem;
             background: {PANEL};
             border-radius: 28px;
-            box-shadow: 0 25px 60px rgba(255, 77, 148, 0.22);
-            border: 2px solid rgba(255, 77, 148, 0.25);
+            box-shadow: 0 25px 60px rgba(255, 20, 147, 0.25);
+            border: 2px solid {ACCENT};
             text-align: center;
         }}
-        .login-wrap .icon {{ font-size: 2.6rem; margin-bottom: 0.2rem; }}
+        .login-wrap .icon {{ font-size: 3rem; margin-bottom: 0.2rem; }}
         .login-wrap h1 {{
-            font-family: 'Baloo 2', sans-serif;
+            font-family: 'Playfair Display', serif;
             color: {ACCENT};
-            font-size: 2rem;
+            font-size: 2.4rem;
+            font-weight: 700;
             margin: 0.2rem 0 0.1rem 0;
         }}
-        .login-wrap p {{ color: {MUTED}; margin-bottom: 0.4rem; font-size: 0.95rem; font-weight: 500; }}
+        .login-wrap p {{ color: {TEXT}; margin-bottom: 0.4rem; font-size: 1rem; font-weight: 600; }}
         div[data-testid="stForm"] {{
             max-width: 440px;
             margin: 0 auto;
@@ -145,16 +140,18 @@ def login_css():
         }}
         label, .stTextInput label p {{
             color: {TEXT} !important;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
+            font-size: 1.05rem !important;
         }}
         input {{
             background-color: {PANEL_2} !important;
             color: {TEXT} !important;
             border-radius: 12px !important;
-            border: 2px solid rgba(255, 77, 148, 0.35) !important;
-            font-weight: 500 !important;
+            border: 2px solid rgba(255, 20, 147, 0.4) !important;
+            font-weight: 600 !important;
+            font-size: 1.05rem !important;
         }}
-        input::placeholder {{ color: {MUTED} !important; opacity: 0.8; }}
+        input::placeholder {{ color: {MUTED} !important; opacity: 0.9; }}
         .stButton>button, .stFormSubmitButton>button {{
             border: 0;
             border-radius: 12px;
@@ -162,11 +159,14 @@ def login_css():
             background: linear-gradient(135deg, {ACCENT}, {ACCENT_2});
             color: #ffffff !important;
             width: 100%;
-            padding: 0.65rem 1.1rem;
-            font-size: 1rem;
+            padding: 0.75rem 1.1rem;
+            font-size: 1.1rem;
+            box-shadow: 0 8px 20px rgba(255, 20, 147, 0.3);
         }}
         .stButton>button:hover, .stFormSubmitButton>button:hover {{
             opacity: 0.9;
+            transform: translateY(-2px);
+            transition: all 0.2s ease-in-out;
             color: #ffffff !important;
         }}
         div[data-testid="stTabs"] {{
@@ -176,12 +176,14 @@ def login_css():
         div[data-testid="stTabs"] button[data-baseweb="tab"] {{
             font-weight: 700;
             color: {MUTED};
+            font-size: 1.1rem;
         }}
         div[data-testid="stTabs"] button[aria-selected="true"] {{
             color: {ACCENT} !important;
         }}
         div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {{
             background-color: {ACCENT} !important;
+            height: 4px;
         }}
         </style>
         """,
@@ -194,9 +196,9 @@ def login_screen():
     st.markdown(
         """
         <div class="login-wrap">
-            <div class="icon">💖</div>
+            <div class="icon">🌸</div>
             <h1>Nossas Finanças</h1>
-            <p>Entre com sua conta ou crie uma nova para acessar</p>
+            <p>Entre com sua conta ou crie uma nova para acessar seu espaço financeiro.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -208,7 +210,7 @@ def login_screen():
         with st.form("login_form"):
             user = st.text_input("Usuário", placeholder="Digite seu usuário", key="login_user")
             pwd = st.text_input("Senha", type="password", placeholder="Digite sua senha", key="login_pwd")
-            login_submitted = st.form_submit_button("Entrar 💕")
+            login_submitted = st.form_submit_button("Entrar 💖")
 
     with tab_signup:
         st.caption("Crie um usuário e senha para acessar as finanças. Todos que tiverem uma conta veem os mesmos dados.")
@@ -266,7 +268,6 @@ if not st.session_state.authenticated:
 # Persistência
 # ----------------------------------------------------------------------------
 
-
 def default_state():
     return {
         "transactions": [],
@@ -277,7 +278,6 @@ def default_state():
 
 
 def migrate_investments(investments):
-    """Garante que investimentos antigos (sem taxa/juros) ganhem os novos campos."""
     migrated = []
     for inv in investments:
         if "initial_amount" not in inv:
@@ -330,11 +330,9 @@ state = st.session_state.state
 if "confirm_clear" not in st.session_state:
     st.session_state.confirm_clear = False
 
-
 # ----------------------------------------------------------------------------
 # Helpers
 # ----------------------------------------------------------------------------
-
 
 def format_currency(value: float) -> str:
     value = value or 0
@@ -381,18 +379,15 @@ def account_name(account_id):
 def find_account(account_id):
     return next((a for a in state["accounts"] if a["id"] == account_id), None)
 
-
 # ----------------------------------------------------------------------------
-# Cálculo de juros dos investimentos (juros compostos, atualiza sozinho)
+# Cálculo de juros
 # ----------------------------------------------------------------------------
-
 
 def monthly_rate(rate_pct: float, period: str) -> float:
     r = (rate_pct or 0) / 100
     if period == "Anual":
         return (1 + r) ** (1 / 12) - 1
     return r
-
 
 def months_elapsed(start_iso: str, as_of: date) -> float:
     try:
@@ -404,16 +399,12 @@ def months_elapsed(start_iso: str, as_of: date) -> float:
         return 0.0
     return delta_days / 30.4368
 
-
 def investment_principal(inv) -> float:
-    """Total efetivamente aportado (sem os juros)."""
     total = inv.get("initial_amount", 0.0)
     total += sum(c["amount"] for c in inv.get("contributions", []))
     return total
 
-
 def investment_current_value(inv, as_of: date = None) -> float:
-    """Valor atual do investimento já com os juros aplicados desde cada aporte."""
     as_of = as_of or date.today()
     r_m = monthly_rate(inv.get("rate", 0.0), inv.get("rate_period", "Mensal"))
 
@@ -422,22 +413,20 @@ def investment_current_value(inv, as_of: date = None) -> float:
         value += c["amount"] * (1 + r_m) ** months_elapsed(c["date"], as_of)
     return value
 
-
 def rate_label(inv) -> str:
     rate = inv.get("rate", 0.0)
     period = inv.get("rate_period", "Mensal")
     suffix = "ao mês" if period == "Mensal" else "ao ano"
     return f"{rate:.2f}% {suffix}".replace(".", ",")
 
-
 # ----------------------------------------------------------------------------
-# CSS - visual claro e elegante
+# CSS Principal - Alta legibilidade & Estilo
 # ----------------------------------------------------------------------------
 
 st.markdown(
     f"""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Poppins:wght@400;500;600;700;800&display=swap');
 
     html, body, [class*="css"] {{
         font-family: 'Poppins', sans-serif;
@@ -445,23 +434,24 @@ st.markdown(
 
     .stApp {{
         background: radial-gradient(circle at 10% 0%, {BG_2}, transparent 50%),
-                    radial-gradient(circle at 90% 100%, #eee0dd, transparent 50%),
+                    radial-gradient(circle at 90% 100%, #ffcbe0, transparent 50%),
                     {BG_1};
         color: {TEXT};
     }}
 
     .block-container {{
-        max-width: 1180px;
+        max-width: 1200px;
         padding-top: 1.5rem;
     }}
 
+    /* HERO SECTION */
     .hero {{
-        padding: 2rem 2.2rem;
+        padding: 2.5rem 2.2rem;
         border-radius: 26px;
-        background: linear-gradient(120deg, rgba(255, 77, 148, 0.12), rgba(124, 106, 142, 0.08)), {PANEL};
-        border: 1px solid rgba(255, 77, 148, 0.18);
-        margin-bottom: 1.5rem;
-        box-shadow: 0 18px 45px rgba(255, 77, 148, 0.12);
+        background: linear-gradient(120deg, #ffffff, {PANEL_2});
+        border: 2px solid {ACCENT};
+        margin-bottom: 2rem;
+        box-shadow: 0 18px 45px rgba(255, 20, 147, 0.2);
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -473,116 +463,149 @@ st.markdown(
         text-transform: uppercase;
         letter-spacing: 0.25rem;
         color: {ACCENT};
-        font-weight: 600;
-        font-size: 0.78rem;
+        font-weight: 800;
+        font-size: 0.85rem;
     }}
     .hero h1 {{
-        font-family: 'Baloo 2', sans-serif;
+        font-family: 'Playfair Display', serif;
         margin: 0.15rem 0;
-        font-size: 2.3rem;
+        font-size: 2.8rem;
         color: {TEXT};
+        font-weight: 700;
     }}
     .hero p.subtitle {{
-        color: {MUTED};
+        color: {TEXT};
         max-width: 620px;
         margin: 0;
+        font-weight: 500;
+        font-size: 1.05rem;
     }}
     .hero .hero-icon {{
-        font-size: 2.8rem;
+        font-size: 4rem;
+        text-shadow: 2px 2px 15px rgba(255,20,147,0.3);
     }}
 
     .panel-title {{
-        font-family: 'Baloo 2', sans-serif;
-        font-size: 1.2rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.6rem;
         font-weight: 700;
         color: {TEXT};
-        margin-bottom: 0.75rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid rgba(255,20,147,0.2);
+        padding-bottom: 0.5rem;
     }}
 
     div[data-testid="stVerticalBlockBorderWrapper"] {{
         background: {PANEL};
-        border: 1px solid rgba(255, 77, 148, 0.14) !important;
+        border: 2px solid rgba(255, 20, 147, 0.3) !important;
         border-radius: 22px !important;
-        box-shadow: 0 16px 36px rgba(255, 77, 148, 0.08);
+        box-shadow: 0 12px 30px rgba(255, 20, 147, 0.12);
+        padding: 0.5rem;
     }}
 
+    /* METRICS */
     div[data-testid="stMetric"] {{
         background: {PANEL_2};
         border-radius: 16px;
-        padding: 0.9rem 1rem;
-        border: 1px solid rgba(255, 77, 148, 0.14);
+        padding: 1rem;
+        border: 2px solid rgba(255, 20, 147, 0.25);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }}
     div[data-testid="stMetricLabel"] {{
-        color: {MUTED};
+        color: {TEXT};
+        font-weight: 700;
+        font-size: 1rem;
     }}
     div[data-testid="stMetricValue"] {{
         color: {TEXT};
+        font-weight: 800;
+        font-size: 1.6rem;
     }}
 
+    /* BUTTONS */
     .stButton>button, .stFormSubmitButton>button {{
         border: 0;
         border-radius: 12px;
-        font-weight: 600;
+        font-weight: 700;
         background: linear-gradient(135deg, {ACCENT}, {ACCENT_2});
         color: white;
-        padding: 0.55rem 1.1rem;
+        padding: 0.65rem 1.2rem;
+        font-size: 1.05rem;
+        box-shadow: 0 5px 15px rgba(255,20,147,0.3);
     }}
     .stButton>button:hover, .stFormSubmitButton>button:hover {{
         color: white;
-        border: 0;
-        opacity: 0.92;
+        transform: translateY(-2px);
+        transition: all 0.2s ease;
+        opacity: 0.95;
     }}
 
     button[kind="secondary"] {{
-        background: transparent !important;
-        border: 1px solid rgba(255,77,148,0.35) !important;
+        background: {PANEL_2} !important;
+        border: 2px solid {ACCENT} !important;
         color: {TEXT} !important;
+        box-shadow: none;
     }}
 
+    /* INPUTS */
+    label, .stSelectbox label p, .stTextInput label p, .stNumberInput label p {{
+        font-weight: 700 !important;
+        color: {TEXT} !important;
+    }}
     input, textarea, select, .stSelectbox div[data-baseweb="select"] > div {{
         background-color: {PANEL_2} !important;
         color: {TEXT} !important;
-        border-radius: 10px !important;
+        border-radius: 12px !important;
+        border: 2px solid rgba(255,20,147,0.3) !important;
+        font-weight: 600 !important;
     }}
 
+    /* LIST ITEMS */
     .transaction-item, .account-item, .investment-item {{
-        padding: 0.9rem 1.1rem;
+        padding: 1rem 1.2rem;
         border-radius: 16px;
         background: {PANEL_2};
-        margin-bottom: 0.6rem;
+        margin-bottom: 0.8rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: 1rem;
-        border: 1px solid rgba(255,77,148,0.10);
+        border: 2px solid rgba(255,20,147,0.2);
     }}
-    .t-meta strong {{ display:block; color: {TEXT}; }}
-    .t-meta span {{ color: {MUTED}; font-size: 0.85rem; }}
-    .t-amount {{ font-weight: 700; white-space: nowrap; }}
+    .t-meta strong {{ display:block; color: {TEXT}; font-size: 1.1rem; }}
+    .t-meta span {{ color: {MUTED}; font-size: 0.95rem; font-weight: 600; }}
+    .t-amount {{ font-weight: 800; font-size: 1.15rem; white-space: nowrap; }}
     .t-amount.income {{ color: {SUCCESS}; }}
     .t-amount.expense {{ color: {DANGER}; }}
-    .acc-balance {{ font-weight: 700; color: {SUCCESS}; }}
+    
+    .acc-balance {{ font-weight: 800; font-size: 1.2rem; color: {SUCCESS}; }}
     .acc-balance.negative {{ color: {DANGER}; }}
+    
     .empty-state {{
-        padding: 1rem;
-        border-radius: 14px;
+        padding: 1.5rem;
+        border-radius: 16px;
         background: {PANEL_2};
-        color: {MUTED};
+        color: {TEXT};
         text-align: center;
-    }}
-    .legend-item {{
-        display:flex; justify-content: space-between; color: {MUTED}; margin-bottom: 0.35rem;
-    }}
-    .legend-badge {{
-        width: 12px; height:12px; border-radius: 999px; display:inline-block; margin-right: 0.45rem;
+        font-weight: 600;
+        border: 2px dashed rgba(255,20,147,0.4);
     }}
 
+    .legend-item {{
+        display:flex; justify-content: space-between; color: {TEXT}; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.05rem;
+    }}
+    .legend-badge {{
+        width: 14px; height: 14px; border-radius: 4px; display:inline-block; margin-right: 0.6rem; border: 1px solid rgba(0,0,0,0.1);
+    }}
+
+    /* INVESTMENT CARDS */
     .inv-card {{
-        padding: 1rem 1.2rem;
-        border-radius: 18px;
+        padding: 1.2rem 1.4rem;
+        border-radius: 20px;
         background: {PANEL_2};
-        border: 1px solid rgba(255,77,148,0.12);
-        margin-bottom: 0.8rem;
+        border: 2px solid rgba(255,20,147,0.25);
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 12px rgba(255,20,147,0.08);
     }}
     .inv-card .inv-top {{
         display: flex;
@@ -590,26 +613,27 @@ st.markdown(
         align-items: flex-start;
         gap: 1rem;
     }}
-    .inv-card .inv-name {{ font-weight: 700; color: {TEXT}; font-size: 1.02rem; }}
-    .inv-card .inv-meta {{ color: {MUTED}; font-size: 0.82rem; margin-top: 0.15rem; }}
+    .inv-card .inv-name {{ font-weight: 800; color: {TEXT}; font-size: 1.2rem; }}
+    .inv-card .inv-meta {{ color: {MUTED}; font-size: 0.95rem; font-weight: 600; margin-top: 0.2rem; }}
     .inv-badge {{
         display:inline-block;
-        padding: 0.15rem 0.6rem;
+        padding: 0.25rem 0.7rem;
         border-radius: 999px;
-        background: rgba(255,77,148,0.14);
-        color: {ACCENT};
-        font-size: 0.75rem;
-        font-weight: 600;
+        background: {ACCENT};
+        color: white;
+        font-size: 0.85rem;
+        font-weight: 700;
         white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(255,20,147,0.4);
     }}
-    .inv-value {{ font-size: 1.25rem; font-weight: 700; color: {TEXT}; text-align: right; }}
-    .inv-gain {{ font-size: 0.85rem; text-align: right; }}
+    .inv-value {{ font-size: 1.4rem; font-weight: 800; color: {TEXT}; text-align: right; }}
+    .inv-gain {{ font-size: 0.95rem; font-weight: 700; text-align: right; margin-top: 0.2rem; }}
     .inv-gain.positive {{ color: {SUCCESS}; }}
     .inv-gain.neutral {{ color: {MUTED}; }}
 
     section[data-testid="stSidebar"] {{
-        background: {PANEL};
-        border-right: 1px solid rgba(255,77,148,0.12);
+        background: {PANEL_2};
+        border-right: 2px solid rgba(255,20,147,0.2);
     }}
     </style>
     """,
@@ -623,15 +647,15 @@ st.markdown(
 with st.sidebar:
     st.markdown(
         f"""
-        <div style="text-align:center; padding: 0.5rem 0 1rem 0;">
-            <div style="font-size:2rem;">💗</div>
-            <div style="font-family:'Baloo 2', sans-serif; font-size:1.2rem; color:{TEXT};">Nossas Finanças</div>
-            <div style="color:{MUTED}; font-size:0.85rem;">Olá, {st.session_state.get('username', '')}!</div>
+        <div style="text-align:center; padding: 1rem 0 1.5rem 0;">
+            <div style="font-size:3.5rem; text-shadow: 0 4px 10px rgba(255,20,147,0.3);">🎀</div>
+            <div style="font-family:'Playfair Display', serif; font-weight:700; font-size:1.6rem; color:{ACCENT}; margin-top: 0.5rem;">Nossas Finanças</div>
+            <div style="color:{TEXT}; font-size:1rem; font-weight: 600;">Olá, {st.session_state.get('username', '')}!</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
-    if st.button("Sair", use_container_width=True, type="secondary"):
+    if st.button("Sair da Conta 👋", use_container_width=True, type="secondary"):
         st.session_state.authenticated = False
         st.rerun()
 
@@ -645,9 +669,9 @@ st.markdown(
         <div>
             <p class="eyebrow">Controle financeiro do casal</p>
             <h1>Nossas Finanças</h1>
-            <p class="subtitle">Organize gastos, ganhos, investimentos, contas e acompanhe o patrimônio de vocês em tempo real.</p>
+            <p class="subtitle">Organize gastos, ganhos, investimentos, contas e acompanhe o patrimônio de vocês com clareza e estilo.</p>
         </div>
-        <div class="hero-icon">🌷</div>
+        <div class="hero-icon">🌸</div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -660,7 +684,7 @@ st.markdown(
 with st.container(border=True):
     top_col1, top_col2 = st.columns([3, 1])
     with top_col1:
-        st.markdown('<div class="panel-title">Nova movimentação</div>', unsafe_allow_html=True)
+        st.markdown('<div class="panel-title">Nova movimentação ✨</div>', unsafe_allow_html=True)
     with top_col2:
         options = month_options()
         if state["period"] not in options:
@@ -694,7 +718,7 @@ with st.container(border=True):
         with c5:
             date_value = st.date_input("Data", value=date.today())
 
-        submitted = st.form_submit_button("Adicionar")
+        submitted = st.form_submit_button("Adicionar Movimentação 💸")
 
         if submitted:
             if not description.strip() or amount <= 0:
@@ -745,9 +769,8 @@ m1, m2, m3, m4, m5 = st.columns(5)
 m1.metric("Ganhos", format_currency(income))
 m2.metric("Gastos", format_currency(expenses))
 m3.metric("Saldo do mês", format_currency(balance))
-m4.metric("Disponível nas contas", format_currency(accounts_total))
+m4.metric("Nas contas", format_currency(accounts_total))
 m5.metric("Patrimônio total", format_currency(net_worth))
-
 st.write("")
 
 # ----------------------------------------------------------------------------
@@ -757,7 +780,7 @@ st.write("")
 with st.container(border=True):
     h1, h2 = st.columns([4, 1])
     with h1:
-        st.markdown('<div class="panel-title">Movimentações</div>', unsafe_allow_html=True)
+        st.markdown('<div class="panel-title">Histórico de Movimentações 📋</div>', unsafe_allow_html=True)
     with h2:
         if st.button("Limpar dados", type="secondary", use_container_width=True):
             st.session_state.confirm_clear = True
@@ -778,7 +801,7 @@ with st.container(border=True):
                 st.rerun()
 
     if not current_transactions:
-        st.markdown('<div class="empty-state">Nenhuma movimentação para este período ainda.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="empty-state">Nenhuma movimentação para este período ainda. Comece a adicionar! 🌷</div>', unsafe_allow_html=True)
     else:
         for t in current_transactions:
             meta_line = f'{t["category"]} • {t["date"]}'
@@ -812,14 +835,13 @@ with st.container(border=True):
                         state["transactions"] = [x for x in state["transactions"] if x["id"] != t["id"]]
                         save_state()
                         st.rerun()
-            st.markdown("<hr style='border-color: rgba(255,77,148,0.12); margin: 0.3rem 0;'>", unsafe_allow_html=True)
 
 # ----------------------------------------------------------------------------
 # Contas
 # ----------------------------------------------------------------------------
 
 with st.container(border=True):
-    st.markdown('<div class="panel-title">Contas</div>', unsafe_allow_html=True)
+    st.markdown('<div class="panel-title">Minhas Contas 💳</div>', unsafe_allow_html=True)
 
     with st.form("account_form", clear_on_submit=True):
         ac1, ac2, ac3, ac4 = st.columns(4)
@@ -832,7 +854,7 @@ with st.container(border=True):
         with ac4:
             acc_description = st.text_input("Descrição", placeholder="Ex.: Juros, ajuste manual", key="acc_desc")
 
-        acc_submitted = st.form_submit_button("Atualizar conta")
+        acc_submitted = st.form_submit_button("Atualizar Conta")
 
         if acc_submitted:
             acc = next((a for a in state["accounts"] if a["name"] == acc_choice), None)
@@ -869,7 +891,7 @@ with st.container(border=True):
                 <div class="account-item">
                     <div>
                         <strong>{a['name']}</strong>
-                        <div style="color:{MUTED}; font-size:0.85rem;">{'Saldo negativo' if neg else 'Saldo disponível'}</div>
+                        <div style="color:{MUTED}; font-size:0.9rem; font-weight: 600;">{'Saldo negativo' if neg else 'Saldo disponível'}</div>
                     </div>
                     <div class="acc-balance {'negative' if neg else ''}">{format_currency(a['balance'])}</div>
                 </div>
@@ -878,16 +900,16 @@ with st.container(border=True):
             )
 
 # ----------------------------------------------------------------------------
-# Gráficos
+# Gráficos de Altíssimo Contraste
 # ----------------------------------------------------------------------------
 
 with st.container(border=True):
-    st.markdown('<div class="panel-title">Gráficos</div>', unsafe_allow_html=True)
+    st.markdown('<div class="panel-title">Análise Financeira 📊</div>', unsafe_allow_html=True)
 
     g1, g2 = st.columns([1.2, 0.8])
 
     with g1:
-        st.markdown("**Receitas x Despesas**")
+        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Receitas x Despesas</span>**", unsafe_allow_html=True)
         bar_fig = go.Figure(
             data=[
                 go.Bar(
@@ -895,25 +917,26 @@ with st.container(border=True):
                     y=[income, expenses],
                     marker_color=[SUCCESS, DANGER],
                     text=[format_currency(income), format_currency(expenses)],
-                    textposition="outside",
-                    width=0.5,
+                    textposition="auto",
+                    textfont=dict(color="white", size=15, weight="bold"),
+                    width=0.4,
                 )
             ]
         )
         bar_fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(color=TEXT),
-            yaxis=dict(showgrid=False, visible=False),
-            xaxis=dict(showgrid=False, color=MUTED),
+            font=dict(color=TEXT, family="Poppins", size=14),
+            yaxis=dict(showgrid=True, gridcolor="rgba(0,0,0,0.05)", visible=True),
+            xaxis=dict(showgrid=False, color=TEXT, tickfont=dict(weight="bold")),
             margin=dict(l=10, r=10, t=30, b=10),
-            height=280,
+            height=320,
             showlegend=False,
         )
         st.plotly_chart(bar_fig, use_container_width=True)
 
     with g2:
-        st.markdown("**Despesas por categoria**")
+        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Despesas por categoria</span>**", unsafe_allow_html=True)
         expense_items = [t for t in current_transactions if t["type"] == "expense"]
         totals_by_cat = {}
         for t in expense_items:
@@ -931,7 +954,7 @@ with st.container(border=True):
                         labels=labels,
                         values=values,
                         hole=0.65,
-                        marker=dict(colors=COLORS * 3),
+                        marker=dict(colors=COLORS * 3, line=dict(color=PANEL_2, width=2)),
                         textinfo="none",
                     )
                 ]
@@ -939,12 +962,14 @@ with st.container(border=True):
         donut_fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(color=TEXT),
+            font=dict(color=TEXT, family="Poppins"),
             margin=dict(l=10, r=10, t=30, b=10),
-            height=280,
+            height=320,
             showlegend=False,
-            annotations=[dict(text=format_currency(sum(totals_by_cat.values())) if totals_by_cat else "Sem dados",
-                               x=0.5, y=0.5, font_size=14, showarrow=False, font_color=TEXT)],
+            annotations=[dict(
+                text=f"<b>Total:</b><br>{format_currency(sum(totals_by_cat.values()))}" if totals_by_cat else "Sem dados",
+                x=0.5, y=0.5, font_size=16, showarrow=False, font_color=TEXT
+            )],
         )
         st.plotly_chart(donut_fig, use_container_width=True)
 
@@ -954,7 +979,9 @@ with st.container(border=True):
                 st.markdown(
                     f"""
                     <div class="legend-item">
-                        <span><span class="legend-badge" style="background:{color}"></span>{name}</span>
+                        <span style="display:flex; align-items:center;">
+                            <span class="legend-badge" style="background:{color}"></span>{name}
+                        </span>
                         <strong>{format_currency(value)}</strong>
                     </div>
                     """,
@@ -966,7 +993,7 @@ with st.container(border=True):
 # ----------------------------------------------------------------------------
 
 with st.container(border=True):
-    st.markdown('<div class="panel-title">Investimentos</div>', unsafe_allow_html=True)
+    st.markdown('<div class="panel-title">Meus Investimentos 📈</div>', unsafe_allow_html=True)
     st.caption("O valor de cada investimento é recalculado automaticamente com base na taxa de juros e no tempo desde o aporte.")
 
     iv1, iv2, iv3 = st.columns(3)
@@ -977,7 +1004,7 @@ with st.container(border=True):
     st.write("")
 
     with st.form("investment_form", clear_on_submit=True):
-        st.markdown("**Novo investimento**")
+        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Novo investimento</span>**", unsafe_allow_html=True)
         ic1, ic2, ic3 = st.columns(3)
         with ic1:
             inv_name = st.text_input("Nome do investimento", placeholder="Ex.: Poupança")
@@ -994,7 +1021,7 @@ with st.container(border=True):
         with ic6:
             inv_start = st.date_input("Data de início", value=date.today(), key="inv_start")
 
-        inv_submitted = st.form_submit_button("Salvar investimento")
+        inv_submitted = st.form_submit_button("Salvar investimento 💰")
 
         if inv_submitted:
             if not inv_name.strip():
@@ -1032,7 +1059,7 @@ with st.container(border=True):
                         <div>
                             <div class="inv-name">{inv['name']}</div>
                             <div class="inv-meta">{inv['location']} • desde {inv['start_date']}</div>
-                            <div style="margin-top:0.4rem;"><span class="inv-badge">{rate_label(inv)}</span></div>
+                            <div style="margin-top:0.6rem;"><span class="inv-badge">{rate_label(inv)}</span></div>
                         </div>
                         <div>
                             <div class="inv-value">{format_currency(current_value)}</div>
@@ -1052,7 +1079,7 @@ with st.container(border=True):
 
     st.write("")
     with st.form("invest_more_form", clear_on_submit=True):
-        st.markdown("**Adicionar aporte a um investimento existente**")
+        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Adicionar aporte a um investimento existente</span>**", unsafe_allow_html=True)
         if state["investments"]:
             im1, im2, im3 = st.columns([2, 1, 1])
             with im1:
@@ -1064,7 +1091,7 @@ with st.container(border=True):
                 extra_amount = st.number_input("Valor do aporte", min_value=0.0, step=0.01, format="%.2f", key="extra_amount")
             with im3:
                 extra_date = st.date_input("Data do aporte", value=date.today(), key="extra_date")
-            extra_submitted = st.form_submit_button("Adicionar aporte")
+            extra_submitted = st.form_submit_button("Adicionar aporte 💎")
 
             if extra_submitted:
                 if extra_amount <= 0:

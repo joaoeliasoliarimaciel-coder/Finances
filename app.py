@@ -589,16 +589,31 @@ with st.container(border=True):
                 )
             ]
         )
-        bar_fig.update_layout(
-            paper_bgcolor="rgba(0,2,0,0)",
-            plot_bgcolor="rgba(0,0,0,2)",
+       bar_fig.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
             font=dict(color=TEXT, family="Poppins", size=14),
-            yaxis=dict(showgrid=True, gridcolor="rgba(0,0,0,0.1)", visible=True),
-            # Também removido o 'weight' do tickfont
-            xaxis=dict(showgrid=False, color=TEXT, tickfont=dict(size=14)), 
+            yaxis=dict(
+                showgrid=True, 
+                gridcolor="rgba(0,0,0,0.25)", # Grade um pouco mais visível
+                zeroline=True,                # Linha do zero (base)
+                zerolinecolor=TEXT,           # Cor sólida na base
+                zerolinewidth=2,              # Espessura da linha base
+                visible=True,
+                color=TEXT                    # Força a cor dos números
+            ),
+            xaxis=dict(
+                showgrid=False, 
+                showline=True,                # Adiciona uma linha visível no eixo X
+                linewidth=2,                  # Espessura da linha do eixo
+                linecolor=TEXT,               # Cor da linha do eixo
+                color=TEXT, 
+                tickfont=dict(size=15, color=TEXT) # Força a cor e aumenta levemente o texto
+            ), 
             margin=dict(l=10, r=10, t=30, b=10),
             height=320,
             showlegend=False,
+        )
         )
         st.plotly_chart(bar_fig, use_container_width=True)
 

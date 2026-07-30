@@ -590,8 +590,8 @@ with st.container(border=True):
             ]
         )
         bar_fig.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,2,0,0)",
+            plot_bgcolor="rgba(0,0,0,2)",
             font=dict(color=TEXT, family="Poppins", size=14),
             yaxis=dict(showgrid=True, gridcolor="rgba(0,0,0,0.1)", visible=True),
             # Também removido o 'weight' do tickfont

@@ -30,14 +30,26 @@ DEFAULT_ACCOUNTS = [
 
 RATE_PERIODS = ["Mensal", "Anual"]
 
-# Paleta Barbie Profissional: Pink, Magenta e tons elegantes com ALTO contraste
-COLORS = ["#ff1493", "#9c27b0", "#ff69b4", "#00bcd4", "#ff9800", "#e040fb", "#f50057"]
+# Paleta de Alto Contraste (Amigável para Daltonismo/Baixa Visão)
+COLORS = [
+    "#CC79A7",  # Rosa/Púrpura (Mantém o estilo Barbie)
+    "#0072B2",  # Azul escuro
+    "#E69F00",  # Laranja
+    "#009E73",  # Verde esmeralda
+    "#56B4E9",  # Azul claro
+    "#D55E00",  # Vermelho/Laranja escuro
+    "#F0E442",  # Amarelo brilhante
+]
 
+SUCCESS_CHART = "#009E73"  # Verde seguro
+DANGER_CHART = "#D55E00"   # Laranja escuro (mais distinguível que o vermelho puro)
+
+# Paleta UI Barbie Profissional
 ACCENT = "#ff1493"        # Deep Barbie Pink (Principal)
 ACCENT_2 = "#d500f9"      # Roxo/Lilás vibrante
-DANGER = "#b71c1c"        # Vermelho bem escuro para legibilidade máxima em fundos claros
+DANGER = "#b71c1c"        # Vermelho bem escuro para textos
 WARNING = "#e65100"       # Laranja/Âmbar escuro
-SUCCESS = "#0a7040"       # Verde escuro, excelente legibilidade
+SUCCESS = "#0a7040"       # Verde escuro para textos
 MUTED = "#5c3a58"         # Cinza-arroxeado escuro (bem legível)
 TEXT = "#1f0a1c"          # Quase preto com fundo magenta - ALTO CONTRASTE
 PANEL = "#ffffff"         # Branco puro para os cards (fundo perfeito para leitura)
@@ -900,7 +912,7 @@ with st.container(border=True):
             )
 
 # ----------------------------------------------------------------------------
-# Gráficos de Altíssimo Contraste
+# Gráficos de Altíssimo Contraste e Acessibilidade
 # ----------------------------------------------------------------------------
 
 with st.container(border=True):
@@ -915,10 +927,11 @@ with st.container(border=True):
                 go.Bar(
                     x=["Ganhos", "Gastos"],
                     y=[income, expenses],
-                    marker_color=[SUCCESS, DANGER],
+                    marker_color=[SUCCESS_CHART, DANGER_CHART], 
+                    marker_line=dict(color=TEXT, width=1.5),    
                     text=[format_currency(income), format_currency(expenses)],
                     textposition="auto",
-                    textfont=dict(color="white", size=15, weight="bold"),
+                    textfont=dict(color="white", size=16, weight="900"),
                     width=0.4,
                 )
             ]
@@ -927,8 +940,8 @@ with st.container(border=True):
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             font=dict(color=TEXT, family="Poppins", size=14),
-            yaxis=dict(showgrid=True, gridcolor="rgba(0,0,0,0.05)", visible=True),
-            xaxis=dict(showgrid=False, color=TEXT, tickfont=dict(weight="bold")),
+            yaxis=dict(showgrid=True, gridcolor="rgba(0,0,0,0.1)", visible=True),
+            xaxis=dict(showgrid=False, color=TEXT, tickfont=dict(weight="bold", size=14)),
             margin=dict(l=10, r=10, t=30, b=10),
             height=320,
             showlegend=False,
@@ -954,7 +967,10 @@ with st.container(border=True):
                         labels=labels,
                         values=values,
                         hole=0.65,
-                        marker=dict(colors=COLORS * 3, line=dict(color=PANEL_2, width=2)),
+                        marker=dict(
+                            colors=COLORS * 3, 
+                            line=dict(color=PANEL, width=3)
+                        ),
                         textinfo="none",
                     )
                 ]
@@ -980,7 +996,7 @@ with st.container(border=True):
                     f"""
                     <div class="legend-item">
                         <span style="display:flex; align-items:center;">
-                            <span class="legend-badge" style="background:{color}"></span>{name}
+                            <span class="legend-badge" style="background:{color}; border: 2px solid {TEXT};"></span>{name}
                         </span>
                         <strong>{format_currency(value)}</strong>
                     </div>

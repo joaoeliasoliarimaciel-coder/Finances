@@ -1,23 +1,33 @@
-# Finanças Pessoais
+# Nossas Finanças
 
-Uma aplicação web simples para controlar:
+App pessoal de controle financeiro do casal, feito em Streamlit.
 
-- gastos e ganhos;
-- categorias de despesas e receitas;
-- investimentos e valores aplicados;
-- saldo, gastos, ganhos e patrimônio total;
-- gráficos básicos em tempo real.
+## Arquivos deste pacote
 
-## Como usar
+- `app.py` — o aplicativo em si (é o único arquivo obrigatório para o Streamlit rodar).
+- `requirements.txt` — lista as bibliotecas que o Streamlit Cloud precisa instalar. **Obrigatório.**
+- `secrets.toml` — exemplo de usuário/senha do login. **Não é para subir no GitHub** (veja abaixo).
+- `.gitignore` — evita subir seus dados financeiros e o arquivo de senha por engano.
 
-1. Abra o arquivo [index.html](index.html) em um navegador.
-2. Adicione movimentações por mês.
-3. Cadastre investimentos e aumente o valor aplicado quando quiser.
+## Como colocar no GitHub
 
-Se preferir, você também pode servir a pasta com um servidor simples:
+1. No seu repositório no GitHub, envie (upload) os arquivos: `app.py`, `requirements.txt` e `.gitignore`.
+   - **Não envie o `secrets.toml`** — ele é só um exemplo para você configurar direto no Streamlit Cloud (passo 3).
+2. Confirme que os nomes dos arquivos estão exatamente assim (minúsculo, sem espaços).
 
-```bash
-python3 -m http.server 8000
-```
+## Como publicar no Streamlit Cloud
 
-Depois acesse http://localhost:8000.
+1. Acesse [share.streamlit.io](https://share.streamlit.io) e clique em "New app".
+2. Escolha o repositório, a branch e em **"Main file path" digite exatamente `app.py`**.
+3. Antes de clicar em "Deploy", vá em **"Advanced settings" → "Secrets"** e cole o conteúdo do arquivo `secrets.toml` (trocando a senha de exemplo pela sua senha de verdade). É assim que você define o usuário e a senha do login do app.
+4. Clique em "Deploy".
+
+## Login padrão (se você não configurar o Secrets)
+
+Se você pular o passo 3, o app libera acesso com usuário `casal` e senha `financas2026`. Recomendo configurar sua própria senha para não deixar esse padrão exposto.
+
+## Se der erro ao publicar
+
+- Confira se `requirements.txt` está mesmo na raiz do repositório.
+- Confira se "Main file path" está escrito exatamente `app.py`.
+- No painel do app, clique em "Manage app" (canto inferior direito) para ver os logs reais do erro.

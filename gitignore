@@ -1,0 +1,4 @@
+finances_data.json
+.streamlit/secrets.toml
+__pycache__/
+*.pyc

@@ -53,13 +53,13 @@ PANEL_2 = "#fff0f6"
 BG_1 = "#ffe4e1"          
 BG_2 = "#ffb6c1"          
 
-# Padrão de fundo com laços e flores (SVG Data URI)
-BG_PATTERN = "url(\"data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='20' y='40' font-size='22' opacity='0.35'%3E🌸%3C/text%3E%3Ctext x='80' y='90' font-size='22' opacity='0.35'%3E🎀%3C/text%3E%3C/svg%3E\")"
+# Padrão de fundo atualizado: Flores, Coroas, Estrelas e Laços (SVG Data URI)
+BG_PATTERN = "url(\"data:image/svg+xml,%3Csvg width='160' height='160' viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='20' y='40' font-size='24' opacity='0.35'%3E🌸%3C/text%3E%3Ctext x='100' y='40' font-size='24' opacity='0.35'%3E👑%3C/text%3E%3Ctext x='20' y='120' font-size='24' opacity='0.35'%3E⭐%3C/text%3E%3Ctext x='100' y='120' font-size='24' opacity='0.35'%3E🎀%3C/text%3E%3C/svg%3E\")"
 
 # Configuração da página do Streamlit
 st.set_page_config(page_title="Nossas Finanças", page_icon="🎀", layout="wide")
 
-# Inicializa o estado para a reação da princesa
+# Inicializa o estado para a reação animada
 if "princess_reaction" not in st.session_state:
     st.session_state.princess_reaction = None
 
@@ -326,6 +326,7 @@ def investment_current_value(inv, as_of: date = None) -> float:
         value += c["amount"] * (1 + r_m) ** months_elapsed(c["date"], as_of)
     return value
 
+
 def rate_label(inv) -> str:
     rate = inv.get("rate", 0.0)
     period = "ao mês" if inv.get("rate_period", "Mensal") == "Mensal" else "ao ano"
@@ -342,7 +343,6 @@ st.markdown(
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Poppins:wght@400;500;600;700;800&display=swap');
     html, body, [class*="css"] {{ font-family: 'Poppins', sans-serif; }}
     
-    /* Novo fundo com flores e laços */
     .stApp {{ 
         background-color: {BG_1};
         background-image: {BG_PATTERN}, 
@@ -410,7 +410,7 @@ with st.sidebar:
     st.markdown(
         f"""
         <div style="text-align:center; padding: 1rem 0 1.5rem 0;">
-            <div style="font-size:3.5rem;">🎀</div>
+            <div style="font-size:3.5rem;">👑</div>
             <div style="font-family:'Playfair Display', serif; font-weight:700; font-size:1.6rem; color:{ACCENT};">Nossas Finanças</div>
             <div style="color:{TEXT}; font-size:1rem; font-weight: 600;">Olá, {st.session_state.get('username', '')}!</div>
         </div>
@@ -429,40 +429,80 @@ st.markdown(
             <h1>Nossas Finanças</h1>
             <p class="subtitle">Organize gastos, ganhos, investimentos e acompanhe o patrimônio com clareza.</p>
         </div>
-        <div class="hero-icon">🌸</div>
+        <div class="hero-icon">👑</div>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
-# --- REAÇÃO DA PRINCESA APÓS NOVA MOVIMENTAÇÃO ---
+
+# ============================================================================
+# 7. ANIMAÇÕES DA PRINCESA (MOVIMENTO COM GIF)
+# ============================================================================
+# Injeta HTML/CSS de movimento e depois limpa o estado, 
+# assim a animação acontece e não se repete na próxima vez que a página recarregar.
+
 if st.session_state.princess_reaction == "happy":
+    # Princesa loira feliz, saltitando atravessando a tela.
     st.markdown(
-        f"""
-        <div style="background: rgba(232, 245, 233, 0.9); border: 2px solid {SUCCESS}; padding: 1.5rem; border-radius: 20px; text-align: center; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); backdrop-filter: blur(4px);">
-            <div style="font-size: 5rem;">👱🏻‍♀️✨💖😊</div>
-            <h3 style="color: {SUCCESS}; font-family: 'Playfair Display', serif; margin-top: 0.5rem; font-weight: 700;">Eba! Um novo ganho registrado!</h3>
-        </div>
+        """
+        <style>
+        .happy-princess {
+            position: fixed;
+            bottom: 20px;
+            left: -300px;
+            z-index: 99999;
+            animation: runAcross 4.5s linear forwards;
+            pointer-events: none;
+        }
+        @keyframes runAcross {
+            0% { left: -300px; transform: scaleX(1); }
+            10% { left: 10%; transform: scaleX(1) translateY(-30px); }
+            20% { left: 20%; transform: scaleX(1) translateY(0); }
+            30% { left: 30%; transform: scaleX(1) translateY(-30px); }
+            40% { left: 40%; transform: scaleX(1) translateY(0); }
+            50% { left: 50%; transform: scaleX(1) translateY(-30px); }
+            60% { left: 60%; transform: scaleX(1) translateY(0); }
+            70% { left: 70%; transform: scaleX(1) translateY(-30px); }
+            80% { left: 80%; transform: scaleX(1) translateY(0); }
+            100% { left: 120%; transform: scaleX(1) translateY(0); visibility: hidden; }
+        }
+        </style>
+        <img src="https://media.tenor.com/7wMvD2hT4l4AAAAi/cinderella-disney.gif" class="happy-princess" width="280">
         """, unsafe_allow_html=True
     )
-    st.balloons()  # Solta balões na tela!
-    st.session_state.princess_reaction = None  # Limpa a reação
+    st.balloons()
+    st.session_state.princess_reaction = None 
 
 elif st.session_state.princess_reaction == "sad":
+    # Princesa loira triste, subindo devagar pelo canto direito e descendo novamente.
     st.markdown(
-        f"""
-        <div style="background: rgba(255, 235, 238, 0.9); border: 2px solid {DANGER}; padding: 1.5rem; border-radius: 20px; text-align: center; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); backdrop-filter: blur(4px);">
-            <div style="font-size: 5rem;">👱🏻‍♀️💧🥺💔</div>
-            <h3 style="color: {DANGER}; font-family: 'Playfair Display', serif; margin-top: 0.5rem; font-weight: 700;">Poxa... Lá se foi um dinheirinho.</h3>
-        </div>
+        """
+        <style>
+        .sad-princess {
+            position: fixed;
+            bottom: -350px;
+            right: 8%;
+            z-index: 99999;
+            animation: riseAndCry 5.5s ease-in-out forwards;
+            pointer-events: none;
+        }
+        @keyframes riseAndCry {
+            0% { bottom: -350px; opacity: 0; }
+            20% { bottom: 0px; opacity: 1; }
+            80% { bottom: 0px; opacity: 1; }
+            100% { bottom: -350px; opacity: 0; visibility: hidden; }
+        }
+        </style>
+        <img src="https://media.tenor.com/L4u2zEEDN20AAAAi/crying-cinderella.gif" class="sad-princess" width="280">
         """, unsafe_allow_html=True
     )
-    st.snow()  # Faz nevar na tela (clima dramático!)
-    st.session_state.princess_reaction = None  # Limpa a reação
+    st.snow()
+    st.session_state.princess_reaction = None 
 
 
 # ============================================================================
-# 7. FILTRO DE MÊS E FORMULÁRIO DE NOVA MOVIMENTAÇÃO
+# 8. FILTRO DE MÊS E FORMULÁRIO DE NOVA MOVIMENTAÇÃO
 # ============================================================================
 
 with st.container(border=True):
@@ -523,7 +563,7 @@ with st.container(border=True):
                 state["transactions"].insert(0, payload)
                 save_state()
                 
-                # Define a reação da princesa antes de recarregar a página!
+                # Seta o estado da animação que será ativado quando a página recarregar!
                 if payload["type"] == "income":
                     st.session_state.princess_reaction = "happy"
                 else:
@@ -533,7 +573,7 @@ with st.container(border=True):
 
 
 # ============================================================================
-# 8. CÁLCULOS TOTAIS E MÉTRICAS PRINCIPAIS
+# 9. CÁLCULOS TOTAIS E MÉTRICAS PRINCIPAIS
 # ============================================================================
 
 current_transactions = [t for t in state["transactions"] if t["month"] == state["period"]]
@@ -557,7 +597,7 @@ st.write("")
 
 
 # ============================================================================
-# 9. HISTÓRICO DE MOVIMENTAÇÕES
+# 10. HISTÓRICO DE MOVIMENTAÇÕES
 # ============================================================================
 
 with st.container(border=True):
@@ -611,7 +651,7 @@ with st.container(border=True):
 
 
 # ============================================================================
-# 10. GRÁFICOS VISUAIS E ANÁLISE DE DADOS
+# 11. GRÁFICOS VISUAIS E ANÁLISE DE DADOS
 # ============================================================================
 
 with st.container(border=True):
@@ -722,7 +762,7 @@ with st.container(border=True):
 
 
 # ============================================================================
-# 11. GESTÃO DE CONTAS BANCÁRIAS
+# 12. GESTÃO DE CONTAS BANCÁRIAS
 # ============================================================================
 
 with st.container(border=True):
@@ -779,7 +819,7 @@ with st.container(border=True):
 
 
 # ============================================================================
-# 12. GESTÃO DE INVESTIMENTOS E APORTES
+# 13. GESTÃO DE INVESTIMENTOS E APORTES
 # ============================================================================
 
 with st.container(border=True):

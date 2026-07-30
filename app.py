@@ -572,7 +572,7 @@ with st.container(border=True):
     g1, g2 = st.columns([1.2, 0.8])
 
     # --- GRÁFICO 1: BARRAS (Ganhos vs Gastos) ---
-    with g1:
+   with g1:
         st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Receitas x Despesas</span>**", unsafe_allow_html=True)
         bar_fig = go.Figure(
             data=[
@@ -583,19 +583,18 @@ with st.container(border=True):
                     marker_line=dict(color=TEXT, width=1.5),    
                     text=[format_currency(income), format_currency(expenses)],
                     textposition="auto",
-                    # Foi removido o atributo 'weight' daqui para evitar o erro do Plotly
                     textfont=dict(color="white", size=16), 
                     width=0.4,
                 )
             ]
         )
-       bar_fig.update_layout(
+        bar_fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             font=dict(color=TEXT, family="Poppins", size=14),
             yaxis=dict(
                 showgrid=True, 
-                gridcolor="rgba(0,0,0,0.25)", # Grade um pouco mais visível
+                gridcolor="rgba(0,0,0,0.35)", # Deixei a grade um pouco mais escura
                 zeroline=True,                # Linha do zero (base)
                 zerolinecolor=TEXT,           # Cor sólida na base
                 zerolinewidth=2,              # Espessura da linha base
@@ -614,9 +613,10 @@ with st.container(border=True):
             height=320,
             showlegend=False,
         )
-        )
-        st.plotly_chart(bar_fig, use_container_width=True)
-
+        
+        # O segredo da visibilidade: theme=None impede o Streamlit de apagar as cores!
+        st.plotly_chart(bar_fig, use_container_width=True, theme=None)
+       
     # --- GRÁFICO 2: ROSCA (Despesas por Categoria) ---
     with g2:
         st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Despesas por categoria</span>**", unsafe_allow_html=True)

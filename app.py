@@ -572,7 +572,7 @@ with st.container(border=True):
     g1, g2 = st.columns([1.2, 0.8])
 
     # --- GRÁFICO 1: BARRAS (Ganhos vs Gastos) ---
-   with g1:
+    with g1:
         st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Receitas x Despesas</span>**", unsafe_allow_html=True)
         bar_fig = go.Figure(
             data=[
@@ -594,27 +594,26 @@ with st.container(border=True):
             font=dict(color=TEXT, family="Poppins", size=14),
             yaxis=dict(
                 showgrid=True, 
-                gridcolor="rgba(0,0,0,0.35)", # Deixei a grade um pouco mais escura
-                zeroline=True,                # Linha do zero (base)
-                zerolinecolor=TEXT,           # Cor sólida na base
-                zerolinewidth=2,              # Espessura da linha base
+                gridcolor="rgba(0,0,0,0.35)",
+                zeroline=True,                
+                zerolinecolor=TEXT,           
+                zerolinewidth=2,              
                 visible=True,
-                color=TEXT                    # Força a cor dos números
+                color=TEXT                    
             ),
             xaxis=dict(
                 showgrid=False, 
-                showline=True,                # Adiciona uma linha visível no eixo X
-                linewidth=2,                  # Espessura da linha do eixo
-                linecolor=TEXT,               # Cor da linha do eixo
+                showline=True,                
+                linewidth=2,                  
+                linecolor=TEXT,               
                 color=TEXT, 
-                tickfont=dict(size=15, color=TEXT) # Força a cor e aumenta levemente o texto
+                tickfont=dict(size=15, color=TEXT)
             ), 
             margin=dict(l=10, r=10, t=30, b=10),
             height=320,
             showlegend=False,
         )
         
-        # O segredo da visibilidade: theme=None impede o Streamlit de apagar as cores!
         st.plotly_chart(bar_fig, use_container_width=True, theme=None)
        
     # --- GRÁFICO 2: ROSCA (Despesas por Categoria) ---

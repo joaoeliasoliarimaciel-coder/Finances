@@ -3,6 +3,8 @@ import json
 import os
 import secrets
 import uuid
+import requests
+import yfinance as yf
 from datetime import date, datetime, timedelta
 
 import plotly.graph_objects as go
@@ -20,19 +22,14 @@ EXPENSE_CATEGORIES = [
 ]
 INCOME_CATEGORIES = ["Salário João", "Salário Emily", "Extra", "Rendimento", "Outro"]
 
-# Lista de opções de investimentos do Banco do Brasil
+# Fundos automatizados
 BB_INVESTMENT_OPTIONS = [
-    "Poupança Ouro - Banco do Brasil",
-    "CDB Fácil BB",
-    "CDB DI Banco do Brasil",
-    "BB LCI (Letra de Crédito Imobiliário)",
-    "BB LCA (Letra de Crédito do Agronegócio)",
-    "BB Ações Dividendos FIC FI",
-    "BB Top DI Crédito Privado FI",
-    "BB RF DI Longo Prazo",
-    "BB Multimercado Macro",
-    "Tesouro Direto (via Banco do Brasil)",
-    "Outro (Digitar manualmente)"
+    "Eletrobras",
+    "LP High",
+    "LP Prefixado",
+    "MM Ouro",
+    "MM Carteira Investimento",
+    "Outro (Manual - Configurar Juros)"
 ]
 
 DEFAULT_ACCOUNTS = [
@@ -171,28 +168,70 @@ if not st.session_state.authenticated: login_screen(); st.stop()
 
 
 # ============================================================================
-# 3. SALVAMENTO E CARREGAMENTO DE DADOS
+# 3. INTEGRAÇÃO DE MERCADO EM TEMPO REAL (MÁGICA DOS FUNDOS)
+# ============================================================================
+
+@st.cache_data(ttl=43200) # Atualiza a cada 12 horas para não sobrecarregar
+def get_auto_multiplier(inv_name: str, start_date_str: str) -> float:
+    """Busca dados da bolsa e do Banco Central para multiplicar a cota de forma automática."""
+    try:
+        start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+        if start_date >= date.today(): 
+            return 1.0
+
+        # Eletrobras -> Busca a ação real (ELET3.SA) no Yahoo Finance
+        if "Eletrobras" in inv_name:
+            hist = yf.download("ELET3.SA", start=start_date_str, progress=False)
+            if not hist.empty: 
+                primeiro = float(hist['Close'].dropna().values[0])
+                ultimo = float(hist['Close'].dropna().values[-1])
+                return ultimo / primeiro
+            
+        # MM Ouro -> Busca contrato futuro de ouro Global
+        elif "Ouro" in inv_name:
+            hist = yf.download("GC=F", start=start_date_str, progress=False) 
+            if not hist.empty: 
+                primeiro = float(hist['Close'].dropna().values[0])
+                ultimo = float(hist['Close'].dropna().values[-1])
+                return ultimo / primeiro
+            
+        # Fundos de Renda Fixa e Multimercado -> Puxa o CDI diário real direto do Banco Central
+        elif "LP High" in inv_name or "Carteira Investimento" in inv_name or "LP Prefixado" in inv_name:
+            d_str = start_date.strftime("%d/%m/%Y")
+            url = f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados?formato=json&dataInicial={d_str}"
+            resp = requests.get(url, timeout=5)
+            if resp.status_code == 200:
+                data = resp.json()
+                multiplier = 1.0
+                for row in data:
+                    multiplier *= (1 + (float(row['valor']) / 100.0))
+                
+                # Ajustes finos do perfil de cada fundo:
+                if "LP Prefixado" in inv_name:
+                    # Fundos prefixados não seguem CDI perfeitamente, assumindo média de 10.5% ao ano.
+                    days = (date.today() - start_date).days
+                    return (1.105) ** (days / 365.25)
+                elif "LP High" in inv_name:
+                    return multiplier * 1.02 # Geralmente tenta render 102~105% do CDI
+                return multiplier # MM Carteira Investimento (rendimento base ~100% CDI)
+                
+    except Exception as e: 
+        pass
+    
+    return 1.0 # Se der falha de conexão, mantém o valor original sem erro.
+
+# ============================================================================
+# 4. SALVAMENTO E CARREGAMENTO DE DADOS
 # ============================================================================
 
 def default_state():
     return {"transactions": [], "investments": [], "accounts": [dict(a) for a in DEFAULT_ACCOUNTS], "period": date.today().strftime("%Y-%m")}
-
-def migrate_investments(investments):
-    migrated = []
-    for inv in investments:
-        if "initial_amount" not in inv:
-            inv = {"id": inv.get("id", str(uuid.uuid4())), "name": inv.get("name", "Investimento"), "location": inv.get("location", "Sem local informado"), "initial_amount": float(inv.get("amount", 0.0)), "rate": 0.0, "rate_period": "Mensal", "start_date": date.today().isoformat(), "contributions": []}
-        else:
-            inv.setdefault("contributions", []); inv.setdefault("rate", 0.0); inv.setdefault("rate_period", "Mensal"); inv.setdefault("start_date", date.today().isoformat()); inv.setdefault("location", "Sem local informado")
-        migrated.append(inv)
-    return migrated
 
 def load_state():
     if os.path.exists(DATA_FILE):
         try:
             with open(DATA_FILE, "r", encoding="utf-8") as f: data = json.load(f)
             data.setdefault("transactions", []); data.setdefault("investments", []); data.setdefault("accounts", [dict(a) for a in DEFAULT_ACCOUNTS]); data.setdefault("period", date.today().strftime("%Y-%m"))
-            data["investments"] = migrate_investments(data["investments"])
             return data
         except Exception: return default_state()
     return default_state()
@@ -206,7 +245,7 @@ if "confirm_clear" not in st.session_state: st.session_state.confirm_clear = Fal
 
 
 # ============================================================================
-# 4. FUNÇÕES DE APOIO E CÁLCULOS
+# 5. FUNÇÕES DE APOIO E CÁLCULOS
 # ============================================================================
 
 def format_currency(value: float) -> str: return f"R$ {f'{value or 0:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')}"
@@ -227,18 +266,37 @@ def months_elapsed(start_iso: str, as_of: date) -> float:
     return max(0.0, (as_of - start).days / 30.4368)
 
 def investment_principal(inv) -> float: return inv.get("initial_amount", 0.0) + sum(c["amount"] for c in inv.get("contributions", []))
+
+# --- CÁLCULO ATUALIZADO DOS INVESTIMENTOS (MANUAL VS AUTOMÁTICO) ---
 def investment_current_value(inv, as_of: date = None) -> float:
     as_of = as_of or date.today()
-    r_m = monthly_rate(inv.get("rate", 0.0), inv.get("rate_period", "Mensal"))
-    val = inv.get("initial_amount", 0.0) * (1 + r_m) ** months_elapsed(inv.get("start_date"), as_of)
-    for c in inv.get("contributions", []): val += c["amount"] * (1 + r_m) ** months_elapsed(c["date"], as_of)
-    return val
+    name = inv.get("name", "")
+    
+    # Se for um fundo da nossa lista automatizada, puxamos via API real
+    is_auto = any(af in name for af in ["Eletrobras", "LP High", "LP Prefixado", "Ouro", "Carteira Investimento"])
+    
+    if is_auto:
+        mult = get_auto_multiplier(name, inv.get("start_date"))
+        val = inv.get("initial_amount", 0.0) * mult
+        for c in inv.get("contributions", []):
+            m_c = get_auto_multiplier(name, c["date"])
+            val += c["amount"] * m_c
+        return val
+    else:
+        # Se for manual (poupança, etc), usa o cálculo antigo de juros simples/compostos
+        r_m = monthly_rate(inv.get("rate", 0.0), inv.get("rate_period", "Mensal"))
+        val = inv.get("initial_amount", 0.0) * (1 + r_m) ** months_elapsed(inv.get("start_date"), as_of)
+        for c in inv.get("contributions", []): val += c["amount"] * (1 + r_m) ** months_elapsed(c["date"], as_of)
+        return val
 
-def rate_label(inv) -> str: return f"{inv.get('rate', 0.0):.2f}% {'ao mês' if inv.get('rate_period', 'Mensal') == 'Mensal' else 'ao ano'}".replace(".", ",")
+def rate_label(inv) -> str: 
+    if any(af in inv.get("name","") for af in ["Eletrobras", "LP High", "LP Prefixado", "Ouro", "Carteira Investimento"]):
+        return "Rendimento Automático"
+    return f"{inv.get('rate', 0.0):.2f}% {'ao mês' if inv.get('rate_period', 'Mensal') == 'Mensal' else 'ao ano'}".replace(".", ",")
 
 
 # ============================================================================
-# 5. ESTILOS (CSS DO APP PRINCIPAL)
+# 6. ESTILOS (CSS DO APP PRINCIPAL)
 # ============================================================================
 
 st.markdown(f"""
@@ -288,7 +346,7 @@ st.markdown(f"""
 
 
 # ============================================================================
-# 6. SIDEBAR E CABEÇALHO
+# 7. SIDEBAR E CABEÇALHO
 # ============================================================================
 
 with st.sidebar:
@@ -315,7 +373,7 @@ st.markdown("""
 
 
 # ============================================================================
-# 7. ANIMAÇÕES DA PRINCESA
+# 8. ANIMAÇÕES DA PRINCESA
 # ============================================================================
 
 def gerar_princesa_svg(feliz=True):
@@ -332,7 +390,6 @@ def gerar_princesa_svg(feliz=True):
         .wave {{ animation: wave 0.4s infinite alternate ease-in-out; transform-origin: 95px 130px; }}
         @keyframes wave {{ from {{ transform: rotate(0deg); }} to {{ transform: rotate(-30deg); }} }}
       </style>
-      
       <g class="bounce">
         <circle cx="75" cy="60" r="42" fill="#ffd700" />
         <circle cx="75" cy="70" r="35" fill="#ffe0bd" />
@@ -386,7 +443,7 @@ elif st.session_state.princess_reaction == "sad":
 
 
 # ============================================================================
-# 8. FILTRO DE MÊS E FORMULÁRIO DE NOVA MOVIMENTAÇÃO
+# 9. FILTRO DE MÊS E FORMULÁRIO DE NOVA MOVIMENTAÇÃO
 # ============================================================================
 
 with st.container(border=True):
@@ -440,7 +497,7 @@ with st.container(border=True):
 
 
 # ============================================================================
-# 9. CÁLCULOS TOTAIS E MÉTRICAS PRINCIPAIS
+# 10. CÁLCULOS TOTAIS E MÉTRICAS PRINCIPAIS
 # ============================================================================
 
 current_transactions = [t for t in state["transactions"] if t["month"] == state["period"]]
@@ -464,7 +521,7 @@ st.write("")
 
 
 # ============================================================================
-# 10. HISTÓRICO DE MOVIMENTAÇÕES
+# 11. HISTÓRICO DE MOVIMENTAÇÕES
 # ============================================================================
 
 with st.container(border=True):
@@ -509,7 +566,7 @@ with st.container(border=True):
 
 
 # ============================================================================
-# 11. GRÁFICOS VISUAIS E ANÁLISE DE DADOS
+# 12. GRÁFICOS VISUAIS E ANÁLISE DE DADOS
 # ============================================================================
 
 with st.container(border=True):
@@ -541,7 +598,7 @@ with st.container(border=True):
 
 
 # ============================================================================
-# 12. GESTÃO DE CONTAS BANCÁRIAS
+# 13. GESTÃO DE CONTAS BANCÁRIAS
 # ============================================================================
 
 with st.container(border=True):
@@ -572,55 +629,58 @@ with st.container(border=True):
 
 
 # ============================================================================
-# 13. GESTÃO DE INVESTIMENTOS E APORTES (COM BANCO DO BRASIL)
+# 14. GESTÃO DE INVESTIMENTOS AUTOMATIZADA
 # ============================================================================
 
 with st.container(border=True):
     st.markdown('<div class="panel-title">Meus Investimentos 📈</div>', unsafe_allow_html=True)
-    st.caption("Cadastre e acompanhe seus investimentos de forma simples. O valor inserido é atualizado automaticamente no patrimônio.")
+    st.caption("O valor dos fundos é extraído em tempo real de acordo com as cotações oficiais e o Banco Central.")
 
     iv1, iv2, iv3 = st.columns(3)
-    iv1.metric("Total aportado", format_currency(invested_principal_total))
-    iv2.metric("Valor atual (com juros)", format_currency(invested_current_total))
-    iv3.metric("Rendimento acumulado", format_currency(investment_gain_total))
+    iv1.metric("Total investido (Seu bolso)", format_currency(invested_principal_total))
+    iv2.metric("Valor atualizado do Patrimônio", format_currency(invested_current_total))
+    iv3.metric("Rendimento acumulado no mercado", format_currency(investment_gain_total))
 
     st.write("")
     
     st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Novo investimento</span>**", unsafe_allow_html=True)
 
-    # Seleção facilitada do investimento Banco do Brasil
-    bb_select = st.selectbox("Selecione um Investimento/Fundo do Banco do Brasil (ou personalize)", BB_INVESTMENT_OPTIONS, key="bb_select")
+    bb_select = st.selectbox("Selecione o Fundo", BB_INVESTMENT_OPTIONS, key="bb_select")
 
     with st.form("investment_form", clear_on_submit=True):
         ic1, ic2, ic3 = st.columns(3)
         with ic1:
-            if bb_select == "Outro (Digitar manualmente)":
+            if "Outro" in bb_select:
                 inv_name = st.text_input("Nome do investimento", placeholder="Ex.: Ações PETR4")
             else:
-                inv_name = st.text_input("Nome do investimento", value=bb_select)
+                inv_name = st.text_input("Nome do investimento", value=bb_select, disabled=True)
 
         with ic2:
-            inv_amount = st.number_input("Valor atual do investimento (R$)", min_value=0.0, step=0.01, format="%.2f", key="inv_amount")
+            inv_amount = st.number_input("Valor investido (R$)", min_value=0.0, step=0.01, format="%.2f", key="inv_amount")
         
         with ic3:
-            default_loc = "Banco do Brasil" if bb_select != "Outro (Digitar manualmente)" else "Banco do Brasil"
-            inv_location = st.text_input("Local", value=default_loc, placeholder="Ex.: Banco do Brasil / Itaú / XP")
+            inv_start = st.date_input("Data do Aporte (Importante para calcular rendimento)", value=date.today(), key="inv_start")
 
-        # Opções avançadas/juros (Padrão zerado para não precisar cadastrar juros manualmente)
-        with st.expander("Configurar juros / rendimento automático (Opcional)"):
-            ic4, ic5, ic6 = st.columns(3)
-            with ic4: inv_rate = st.number_input("Taxa de juros (%)", min_value=0.0, step=0.01, value=0.0, format="%.2f", key="inv_rate")
-            with ic5: inv_rate_period = st.selectbox("Período", RATE_PERIODS, key="inv_rate_period")
-            with ic6: inv_start = st.date_input("Data de início", value=date.today(), key="inv_start")
+        # Mostra o painel de juros APENAS se a pessoa escolher "Outro"
+        if "Outro" in bb_select:
+            with st.expander("Configurar juros (Apenas para investimentos manuais)"):
+                ix1, ix2 = st.columns(2)
+                with ix1: inv_rate = st.number_input("Taxa de juros (%)", min_value=0.0, step=0.01, value=0.0, format="%.2f", key="inv_rate")
+                with ix2: inv_rate_period = st.selectbox("Período", RATE_PERIODS, key="inv_rate_period")
+        else:
+            inv_rate = 0.0
+            inv_rate_period = "Mensal"
+            st.info("💡 Este fundo será atualizado **automaticamente** pelas cotações reais do mercado e CDI do Banco Central.")
 
         if st.form_submit_button("Salvar investimento 💰"):
-            if not inv_name.strip(): 
+            nome_final = inv_name.strip() if "Outro" in bb_select else bb_select
+            if not nome_final: 
                 st.warning("Informe um nome para o investimento.")
             else:
                 state["investments"].append({
                     "id": str(uuid.uuid4()),
-                    "name": inv_name.strip(),
-                    "location": inv_location.strip() or "Banco do Brasil",
+                    "name": nome_final,
+                    "location": "Banco do Brasil" if "Outro" not in bb_select else "Corretora",
                     "initial_amount": float(inv_amount),
                     "rate": float(inv_rate),
                     "rate_period": inv_rate_period,
@@ -637,20 +697,20 @@ with st.container(border=True):
             current_value = investment_current_value(inv)
             gain = current_value - investment_principal(inv)
             gain_cls, gain_sign = ("positive", "+") if gain > 0.005 else ("neutral", "")
-
-            st.markdown(f'<div class="inv-card"><div class="inv-top"><div><div class="inv-name">{inv["name"]}</div><div class="inv-meta">{inv["location"]} • desde {inv["start_date"]}</div><div style="margin-top:0.6rem;"><span class="inv-badge">{rate_label(inv)}</span></div></div><div><div class="inv-value">{format_currency(current_value)}</div><div class="inv-gain {gain_cls}">{gain_sign}{format_currency(gain)} de rendimento</div></div></div></div>', unsafe_allow_html=True)
+            
+            st.markdown(f'<div class="inv-card"><div class="inv-top"><div><div class="inv-name">{inv["name"]}</div><div class="inv-meta">{inv["location"]} • comprado em {inv["start_date"]}</div><div style="margin-top:0.6rem;"><span class="inv-badge">{rate_label(inv)}</span></div></div><div><div class="inv-value">{format_currency(current_value)}</div><div class="inv-gain {gain_cls}">{gain_sign}{format_currency(gain)} de variação</div></div></div></div>', unsafe_allow_html=True)
             if st.columns([5, 1])[1].button("Remover", key=f"rm_i_{inv['id']}"):
                 state["investments"] = [x for x in state["investments"] if x["id"] != inv["id"]]; save_state(); st.rerun()
 
     st.write("")
     
     with st.form("invest_more_form", clear_on_submit=True):
-        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Adicionar aporte a um investimento</span>**", unsafe_allow_html=True)
+        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Adicionar novo aporte em fundo existente</span>**", unsafe_allow_html=True)
         if state["investments"]:
             im1, im2, im3 = st.columns([2, 1, 1])
             with im1: inv_choice = st.selectbox("Investimento", [f'{i["name"]} — {format_currency(investment_current_value(i))}' for i in state["investments"]])
             with im2: extra_amount = st.number_input("Valor do aporte", min_value=0.0, step=0.01, format="%.2f", key="extra_amount")
-            with im3: extra_date = st.date_input("Data", value=date.today(), key="extra_date")
+            with im3: extra_date = st.date_input("Data do aporte", value=date.today(), key="extra_date")
             
             if st.form_submit_button("Adicionar aporte 💎"):
                 if extra_amount <= 0: st.warning("Informe um valor maior que zero.")

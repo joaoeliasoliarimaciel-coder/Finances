@@ -20,6 +20,21 @@ EXPENSE_CATEGORIES = [
 ]
 INCOME_CATEGORIES = ["Salário João", "Salário Emily", "Extra", "Rendimento", "Outro"]
 
+# Lista de opções de investimentos do Banco do Brasil
+BB_INVESTMENT_OPTIONS = [
+    "Poupança Ouro - Banco do Brasil",
+    "CDB Fácil BB",
+    "CDB DI Banco do Brasil",
+    "BB LCI (Letra de Crédito Imobiliário)",
+    "BB LCA (Letra de Crédito do Agronegócio)",
+    "BB Ações Dividendos FIC FI",
+    "BB Top DI Crédito Privado FI",
+    "BB RF DI Longo Prazo",
+    "BB Multimercado Macro",
+    "Tesouro Direto (via Banco do Brasil)",
+    "Outro (Digitar manualmente)"
+]
+
 DEFAULT_ACCOUNTS = [
     {"id": "bb-joao", "name": "Banco do Brasil - João", "balance": 0.0},
     {"id": "bb-emily", "name": "Banco do Brasil Emily", "balance": 0.0},
@@ -300,20 +315,14 @@ st.markdown("""
 
 
 # ============================================================================
-# 7. ANIMAÇÕES DA PRINCESA (TRADUÇÃO DO SEU CÓDIGO PYGAME)
+# 7. ANIMAÇÕES DA PRINCESA
 # ============================================================================
 
 def gerar_princesa_svg(feliz=True):
-    # Cores inspiradas no seu Pygame
-    cor_vestido = "#ff69b4" if feliz else "#6495ed"  # ROSA vs AZUL_VESTIDO
-    
-    # Boca baseada no arco: Feliz sorri para cima, triste para baixo
+    cor_vestido = "#ff69b4" if feliz else "#6495ed"
     boca = 'd="M 63 75 Q 75 90 87 75"' if feliz else 'd="M 63 80 Q 75 70 87 80"'
-    
-    # Braço animado (equivalente ao math.sin(tempo*4))
     animacao_braco = 'class="wave"' if feliz else ""
 
-    # O "pulo" (math.sin(tempo*3)*8) é simulado via classe .bounce no CSS
     return f"""
     <svg width="200" height="300" viewBox="0 0 150 300" xmlns="http://www.w3.org/2000/svg">
       <style>
@@ -325,27 +334,17 @@ def gerar_princesa_svg(feliz=True):
       </style>
       
       <g class="bounce">
-        <!-- Cabelo (AMARELO) -->
         <circle cx="75" cy="60" r="42" fill="#ffd700" />
-        <!-- Rosto (PELE) -->
         <circle cx="75" cy="70" r="35" fill="#ffe0bd" />
-        <!-- Coroa (AMARELO) -->
         <polygon points="50,30 60,5 75,30 90,5 100,30" fill="#ffd700" />
-        <!-- Olhos (PRETO) -->
         <circle cx="65" cy="65" r="3" fill="#000" />
         <circle cx="85" cy="65" r="3" fill="#000" />
-        <!-- Boca (PRETO) -->
         <path {boca} stroke="#000" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <!-- Pescoço (PELE) -->
         <rect x="70" y="102" width="10" height="15" fill="#ffe0bd" />
-        <!-- Pernas (PRETO) -->
         <line x1="60" y1="240" x2="60" y2="290" stroke="#000" stroke-width="4" />
         <line x1="90" y1="240" x2="90" y2="290" stroke="#000" stroke-width="4" />
-        <!-- Vestido (ROSA / AZUL_VESTIDO) -->
         <polygon points="75,110 15,240 135,240" fill="{cor_vestido}" />
-        <!-- Braço esquerdo estático -->
         <line x1="55" y1="130" x2="15" y2="180" stroke="#ffe0bd" stroke-width="5" stroke-linecap="round"/>
-        <!-- Braço direito animado/estático -->
         <line x1="95" y1="130" x2="135" y2="180" stroke="#ffe0bd" stroke-width="5" stroke-linecap="round" {animacao_braco}/>
       </g>
     </svg>
@@ -573,12 +572,12 @@ with st.container(border=True):
 
 
 # ============================================================================
-# 13. GESTÃO DE INVESTIMENTOS E APORTES
+# 13. GESTÃO DE INVESTIMENTOS E APORTES (COM BANCO DO BRASIL)
 # ============================================================================
 
 with st.container(border=True):
     st.markdown('<div class="panel-title">Meus Investimentos 📈</div>', unsafe_allow_html=True)
-    st.caption("O valor de cada investimento é recalculado automaticamente com base na taxa de juros e no tempo desde o aporte.")
+    st.caption("Cadastre e acompanhe seus investimentos de forma simples. O valor inserido é atualizado automaticamente no patrimônio.")
 
     iv1, iv2, iv3 = st.columns(3)
     iv1.metric("Total aportado", format_currency(invested_principal_total))
@@ -587,22 +586,47 @@ with st.container(border=True):
 
     st.write("")
     
-    with st.form("investment_form", clear_on_submit=True):
-        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Novo investimento</span>**", unsafe_allow_html=True)
-        ic1, ic2, ic3 = st.columns(3)
-        with ic1: inv_name = st.text_input("Nome", placeholder="Ex.: Poupança")
-        with ic2: inv_amount = st.number_input("Valor inicial", min_value=0.0, step=0.01, format="%.2f", key="inv_amount")
-        with ic3: inv_location = st.text_input("Local", placeholder="Ex.: Banco do Brasil")
+    st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Novo investimento</span>**", unsafe_allow_html=True)
 
-        ic4, ic5, ic6 = st.columns(3)
-        with ic4: inv_rate = st.number_input("Taxa de juros (%)", min_value=0.0, step=0.01, format="%.2f", key="inv_rate")
-        with ic5: inv_rate_period = st.selectbox("Período", RATE_PERIODS, key="inv_rate_period")
-        with ic6: inv_start = st.date_input("Data de início", value=date.today(), key="inv_start")
+    # Seleção facilitada do investimento Banco do Brasil
+    bb_select = st.selectbox("Selecione um Investimento/Fundo do Banco do Brasil (ou personalize)", BB_INVESTMENT_OPTIONS, key="bb_select")
+
+    with st.form("investment_form", clear_on_submit=True):
+        ic1, ic2, ic3 = st.columns(3)
+        with ic1:
+            if bb_select == "Outro (Digitar manualmente)":
+                inv_name = st.text_input("Nome do investimento", placeholder="Ex.: Ações PETR4")
+            else:
+                inv_name = st.text_input("Nome do investimento", value=bb_select)
+
+        with ic2:
+            inv_amount = st.number_input("Valor atual do investimento (R$)", min_value=0.0, step=0.01, format="%.2f", key="inv_amount")
+        
+        with ic3:
+            default_loc = "Banco do Brasil" if bb_select != "Outro (Digitar manualmente)" else "Banco do Brasil"
+            inv_location = st.text_input("Local", value=default_loc, placeholder="Ex.: Banco do Brasil / Itaú / XP")
+
+        # Opções avançadas/juros (Padrão zerado para não precisar cadastrar juros manualmente)
+        with st.expander("Configurar juros / rendimento automático (Opcional)"):
+            ic4, ic5, ic6 = st.columns(3)
+            with ic4: inv_rate = st.number_input("Taxa de juros (%)", min_value=0.0, step=0.01, value=0.0, format="%.2f", key="inv_rate")
+            with ic5: inv_rate_period = st.selectbox("Período", RATE_PERIODS, key="inv_rate_period")
+            with ic6: inv_start = st.date_input("Data de início", value=date.today(), key="inv_start")
 
         if st.form_submit_button("Salvar investimento 💰"):
-            if not inv_name.strip(): st.warning("Informe um nome para o investimento.")
+            if not inv_name.strip(): 
+                st.warning("Informe um nome para o investimento.")
             else:
-                state["investments"].append({"id": str(uuid.uuid4()), "name": inv_name.strip(), "location": inv_location.strip() or "Sem local", "initial_amount": float(inv_amount), "rate": float(inv_rate), "rate_period": inv_rate_period, "start_date": inv_start.isoformat(), "contributions": []})
+                state["investments"].append({
+                    "id": str(uuid.uuid4()),
+                    "name": inv_name.strip(),
+                    "location": inv_location.strip() or "Banco do Brasil",
+                    "initial_amount": float(inv_amount),
+                    "rate": float(inv_rate),
+                    "rate_period": inv_rate_period,
+                    "start_date": inv_start.isoformat(),
+                    "contributions": []
+                })
                 save_state(); st.rerun()
 
     st.write("")

@@ -2,6 +2,7 @@ import hashlib
 import json
 import os
 import secrets
+import textwrap
 import uuid
 import requests
 import yfinance as yf
@@ -107,24 +108,25 @@ def username_taken(username: str, registered_users: dict) -> bool:
     return username in CREDENTIALS or username in registered_users
 
 def login_css():
-    st.markdown(f"""
-        <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Poppins:wght@400;500;600;700&display=swap');
-        html, body, [class*="css"] {{ font-family: 'Poppins', sans-serif; }}
-        .stApp {{ background-color: {BG_1}; background-image: {BG_PATTERN}, radial-gradient(circle at 15% 10%, {BG_2}, transparent 55%), radial-gradient(circle at 85% 90%, #ffcbe0, transparent 55%); }}
-        .login-wrap {{ max-width: 440px; margin: 6vh auto 1.2rem auto; padding: 2.4rem 2.2rem 1.4rem 2.2rem; background: {PANEL}; border-radius: 28px; box-shadow: 0 25px 60px rgba(255, 20, 147, 0.25); border: 2px solid {ACCENT}; text-align: center; }}
-        .login-wrap .icon {{ font-size: 3rem; margin-bottom: 0.2rem; }}
-        .login-wrap h1 {{ font-family: 'Playfair Display', serif; color: {ACCENT}; font-size: 2.4rem; font-weight: 700; margin: 0; }}
-        .login-wrap p {{ color: {TEXT}; font-size: 1rem; font-weight: 600; }}
-        div[data-testid="stForm"] {{ max-width: 440px; margin: 0 auto; border: none !important; background: transparent !important; padding: 0 !important; }}
-        label, .stTextInput label p {{ color: {TEXT} !important; font-weight: 700 !important; }}
-        input {{ background-color: {PANEL_2} !important; color: {TEXT} !important; border-radius: 12px !important; border: 2px solid rgba(255, 20, 147, 0.4) !important; }}
-        .stButton>button, .stFormSubmitButton>button {{ border: 0; border-radius: 12px; font-weight: 700; background: linear-gradient(135deg, {ACCENT}, {ACCENT_2}); color: #ffffff !important; width: 100%; padding: 0.75rem 1.1rem; }}
-        div[data-testid="stTabs"] {{ max-width: 440px; margin: 0 auto; }}
-        div[data-testid="stTabs"] button[aria-selected="true"] {{ color: {ACCENT} !important; }}
-        div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {{ background-color: {ACCENT} !important; height: 4px; }}
-        </style>
-        """, unsafe_allow_html=True)
+    css = textwrap.dedent(f"""\
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Poppins:wght@400;500;600;700&display=swap');
+    html, body, [class*="css"] {{ font-family: 'Poppins', sans-serif; }}
+    .stApp {{ background-color: {BG_1}; background-image: {BG_PATTERN}, radial-gradient(circle at 15% 10%, {BG_2}, transparent 55%), radial-gradient(circle at 85% 90%, #ffcbe0, transparent 55%); }}
+    .login-wrap {{ max-width: 440px; margin: 6vh auto 1.2rem auto; padding: 2.4rem 2.2rem 1.4rem 2.2rem; background: {PANEL}; border-radius: 28px; box-shadow: 0 25px 60px rgba(255, 20, 147, 0.25); border: 2px solid {ACCENT}; text-align: center; }}
+    .login-wrap .icon {{ font-size: 3rem; margin-bottom: 0.2rem; }}
+    .login-wrap h1 {{ font-family: 'Playfair Display', serif; color: {ACCENT}; font-size: 2.4rem; font-weight: 700; margin: 0; }}
+    .login-wrap p {{ color: {TEXT}; font-size: 1rem; font-weight: 600; }}
+    div[data-testid="stForm"] {{ max-width: 440px; margin: 0 auto; border: none !important; background: transparent !important; padding: 0 !important; }}
+    label, .stTextInput label p {{ color: {TEXT} !important; font-weight: 700 !important; }}
+    input {{ background-color: {PANEL_2} !important; color: {TEXT} !important; border-radius: 12px !important; border: 2px solid rgba(255, 20, 147, 0.4) !important; }}
+    .stButton>button, .stFormSubmitButton>button {{ border: 0; border-radius: 12px; font-weight: 700; background: linear-gradient(135deg, {ACCENT}, {ACCENT_2}); color: #ffffff !important; width: 100%; padding: 0.75rem 1.1rem; }}
+    div[data-testid="stTabs"] {{ max-width: 440px; margin: 0 auto; }}
+    div[data-testid="stTabs"] button[aria-selected="true"] {{ color: {ACCENT} !important; }}
+    div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {{ background-color: {ACCENT} !important; height: 4px; }}
+    </style>
+    """)
+    st.markdown(css, unsafe_allow_html=True)
 
 def login_screen():
     login_css()
@@ -408,38 +410,40 @@ def gerar_princesa_svg(feliz=True):
     """
 
 if st.session_state.princess_reaction == "happy":
-    st.markdown(f"""
-        <style>
-        .happy-princess {{
-            position: fixed;
-            bottom: 20px;
-            left: -300px;
-            z-index: 999999 !important;
-            animation: runAcross 4.5s linear forwards;
-            pointer-events: none;
-        }}
-        @keyframes runAcross {{ 0% {{ left: -300px; }} 100% {{ left: 120%; visibility: hidden; }} }}
-        </style>
-        <div class="happy-princess">{gerar_princesa_svg(feliz=True)}</div>
-        """, unsafe_allow_html=True)
-    st.session_state.princess_reaction = None 
+    happy_html = textwrap.dedent(f"""\
+    <style>
+    .happy-princess {{
+        position: fixed;
+        bottom: 20px;
+        left: -300px;
+        z-index: 999999 !important;
+        animation: runAcross 4.5s linear forwards;
+        pointer-events: none;
+    }}
+    @keyframes runAcross {{ 0% {{ left: -300px; }} 100% {{ left: 120%; visibility: hidden; }} }}
+    </style>
+    <div class="happy-princess">{gerar_princesa_svg(feliz=True)}</div>
+    """)
+    st.markdown(happy_html, unsafe_allow_html=True)
+    st.session_state.princess_reaction = None
 
 elif st.session_state.princess_reaction == "sad":
-    st.markdown(f"""
-        <style>
-        .sad-princess {{
-            position: fixed;
-            bottom: -350px;
-            right: 8%;
-            z-index: 999999 !important;
-            animation: riseAndCry 5.5s ease-in-out forwards;
-            pointer-events: none;
-        }}
-        @keyframes riseAndCry {{ 0% {{ bottom: -350px; opacity: 0; }} 20% {{ bottom: 0px; opacity: 1; }} 80% {{ bottom: 0px; opacity: 1; }} 100% {{ bottom: -350px; opacity: 0; visibility: hidden; }} }}
-        </style>
-        <div class="sad-princess">{gerar_princesa_svg(feliz=False)}</div>
-        """, unsafe_allow_html=True)
-    st.session_state.princess_reaction = None 
+    sad_html = textwrap.dedent(f"""\
+    <style>
+    .sad-princess {{
+        position: fixed;
+        bottom: -350px;
+        right: 8%;
+        z-index: 999999 !important;
+        animation: riseAndCry 5.5s ease-in-out forwards;
+        pointer-events: none;
+    }}
+    @keyframes riseAndCry {{ 0% {{ bottom: -350px; opacity: 0; }} 20% {{ bottom: 0px; opacity: 1; }} 80% {{ bottom: 0px; opacity: 1; }} 100% {{ bottom: -350px; opacity: 0; visibility: hidden; }} }}
+    </style>
+    <div class="sad-princess">{gerar_princesa_svg(feliz=False)}</div>
+    """)
+    st.markdown(sad_html, unsafe_allow_html=True)
+    st.session_state.princess_reaction = None
 
 
 # ============================================================================

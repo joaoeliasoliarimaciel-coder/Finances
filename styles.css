@@ -289,9 +289,12 @@ button:hover {
   pointer-events: none;
 }
 
-.princess-overlay .bounce {
+.princess-overlay .princess-bounce {
+  display: block;
+  width: 160px;
+  height: auto;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35));
   animation: princess-bounce 0.6s infinite alternate ease-in-out;
-  transform-origin: center;
 }
 
 @keyframes princess-bounce {
@@ -300,20 +303,6 @@ button:hover {
   }
   to {
     transform: translateY(8px);
-  }
-}
-
-.princess-overlay .wave {
-  animation: princess-wave 0.4s infinite alternate ease-in-out;
-  transform-origin: 95px 130px;
-}
-
-@keyframes princess-wave {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(-30deg);
   }
 }
 

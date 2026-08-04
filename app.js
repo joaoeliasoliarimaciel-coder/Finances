@@ -277,36 +277,15 @@ function bindEvents() {
   });
 }
 
-function createPrincessSVG(happy) {
-  const dressColor = happy ? '#ff69b4' : '#6495ed';
-  const mouthPath = happy ? 'M 63 75 Q 75 90 87 75' : 'M 63 80 Q 75 70 87 80';
-  const armAnimClass = happy ? 'wave' : '';
-
-  return `
-    <svg width="200" height="300" viewBox="0 0 150 300" xmlns="http://www.w3.org/2000/svg">
-      <g class="bounce">
-        <circle cx="75" cy="60" r="42" fill="#ffd700" />
-        <circle cx="75" cy="70" r="35" fill="#ffe0bd" />
-        <polygon points="50,30 60,5 75,30 90,5 100,30" fill="#ffd700" />
-        <circle cx="65" cy="65" r="3" fill="#000" />
-        <circle cx="85" cy="65" r="3" fill="#000" />
-        <path d="${mouthPath}" stroke="#000" stroke-width="2.5" fill="none" stroke-linecap="round" />
-        <rect x="70" y="102" width="10" height="15" fill="#ffe0bd" />
-        <line x1="60" y1="240" x2="60" y2="290" stroke="#000" stroke-width="4" />
-        <line x1="90" y1="240" x2="90" y2="290" stroke="#000" stroke-width="4" />
-        <polygon points="75,110 15,240 135,240" fill="${dressColor}" />
-        <line x1="55" y1="130" x2="15" y2="180" stroke="#ffe0bd" stroke-width="5" stroke-linecap="round" />
-        <line x1="95" y1="130" x2="135" y2="180" stroke="#ffe0bd" stroke-width="5" stroke-linecap="round" class="${armAnimClass}" />
-      </g>
-    </svg>
-  `;
-}
-
 function showPrincessReaction(type) {
   const happy = type === 'income';
   const wrapper = document.createElement('div');
   wrapper.className = `princess-overlay ${happy ? 'princess-happy' : 'princess-sad'}`;
-  wrapper.innerHTML = createPrincessSVG(happy);
+  const img = document.createElement('img');
+  img.className = 'princess-bounce';
+  img.src = happy ? 'assets/princesa_feliz.png' : 'assets/princesa_triste.png';
+  img.alt = happy ? 'Princesa feliz' : 'Princesa triste';
+  wrapper.appendChild(img);
   document.body.appendChild(wrapper);
 
   const duration = happy ? 4500 : 5500;

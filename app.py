@@ -402,7 +402,7 @@ def carregar_imagem_base64(nome_arquivo: str) -> str:
 
 
 if st.session_state.princess_reaction == "happy":
-    img_b64 = carregar_imagem_base64("princesa_feliz.png")
+    img_b64 = carregar_imagem_base64("princesa_feliz.gif")
     happy_html = textwrap.dedent(f"""\
     <div class="happy-princess">
         <img class="princess-bounce" src="data:image/png;base64,{img_b64}" alt="Princesa feliz" />
@@ -412,7 +412,7 @@ if st.session_state.princess_reaction == "happy":
     st.session_state.princess_reaction = None
 
 elif st.session_state.princess_reaction == "sad":
-    img_b64 = carregar_imagem_base64("princesa_triste.png")
+    img_b64 = carregar_imagem_base64("princesa_triste.gif")
     sad_html = textwrap.dedent(f"""\
     <div class="sad-princess">
         <img class="princess-bounce" src="data:image/png;base64,{img_b64}" alt="Princesa triste" />

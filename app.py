@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import json
 import os
@@ -343,6 +344,14 @@ input, textarea, select, .stSelectbox div[data-baseweb="select"] > div {{ backgr
 .inv-gain.positive {{ color: {SUCCESS}; }}
 .inv-gain.neutral {{ color: {MUTED}; }}
 section[data-testid="stSidebar"] {{ background: rgba(255, 240, 246, 0.95); border-right: 2px solid rgba(255,20,147,0.2); backdrop-filter: blur(5px); }}
+.happy-princess, .sad-princess {{ position: fixed; z-index: 999999 !important; pointer-events: none; }}
+.happy-princess img, .sad-princess img {{ display: block; width: 160px; height: auto; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.25)); }}
+.happy-princess {{ bottom: 20px; left: -300px; animation: runAcross 4.5s linear forwards; }}
+.sad-princess {{ bottom: -350px; right: 8%; animation: riseAndCry 5.5s ease-in-out forwards; }}
+@keyframes runAcross {{ 0% {{ left: -300px; }} 100% {{ left: 120%; visibility: hidden; }} }}
+@keyframes riseAndCry {{ 0% {{ bottom: -350px; opacity: 0; }} 20% {{ bottom: 0px; opacity: 1; }} 80% {{ bottom: 0px; opacity: 1; }} 100% {{ bottom: -350px; opacity: 0; visibility: hidden; }} }}
+.princess-bounce {{ animation: princessBounce 0.6s infinite alternate ease-in-out; }}
+@keyframes princessBounce {{ from {{ transform: translateY(-8px); }} to {{ transform: translateY(8px); }} }}
 </style>
 """)
 st.markdown(main_css, unsafe_allow_html=True)
@@ -381,69 +390,33 @@ st.markdown(hero_html, unsafe_allow_html=True)
 # 8. ANIMAÇÕES DA PRINCESA
 # ============================================================================
 
-def gerar_princesa_svg(feliz=True):
-    cor_vestido = "#ff69b4" if feliz else "#6495ed"
-    boca = 'd="M 63 75 Q 75 90 87 75"' if feliz else 'd="M 63 80 Q 75 70 87 80"'
-    animacao_braco = 'class="wave"' if feliz else ""
+ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
-    return f"""
-    <svg width="200" height="300" viewBox="0 0 150 300" xmlns="http://www.w3.org/2000/svg">
-      <style>
-        .bounce {{ animation: bounce 0.6s infinite alternate ease-in-out; transform-origin: center; }}
-        @keyframes bounce {{ from {{ transform: translateY(-8px); }} to {{ transform: translateY(8px); }} }}
-        
-        .wave {{ animation: wave 0.4s infinite alternate ease-in-out; transform-origin: 95px 130px; }}
-        @keyframes wave {{ from {{ transform: rotate(0deg); }} to {{ transform: rotate(-30deg); }} }}
-      </style>
-      <g class="bounce">
-        <circle cx="75" cy="60" r="42" fill="#ffd700" />
-        <circle cx="75" cy="70" r="35" fill="#ffe0bd" />
-        <polygon points="50,30 60,5 75,30 90,5 100,30" fill="#ffd700" />
-        <circle cx="65" cy="65" r="3" fill="#000" />
-        <circle cx="85" cy="65" r="3" fill="#000" />
-        <path {boca} stroke="#000" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <rect x="70" y="102" width="10" height="15" fill="#ffe0bd" />
-        <line x1="60" y1="240" x2="60" y2="290" stroke="#000" stroke-width="4" />
-        <line x1="90" y1="240" x2="90" y2="290" stroke="#000" stroke-width="4" />
-        <polygon points="75,110 15,240 135,240" fill="{cor_vestido}" />
-        <line x1="55" y1="130" x2="15" y2="180" stroke="#ffe0bd" stroke-width="5" stroke-linecap="round"/>
-        <line x1="95" y1="130" x2="135" y2="180" stroke="#ffe0bd" stroke-width="5" stroke-linecap="round" {animacao_braco}/>
-      </g>
-    </svg>
-    """
+
+@st.cache_data
+def carregar_imagem_base64(nome_arquivo: str) -> str:
+    """Lê uma imagem da pasta assets/ e retorna como base64 (cacheado)."""
+    caminho = os.path.join(ASSETS_DIR, nome_arquivo)
+    with open(caminho, "rb") as f:
+        return base64.b64encode(f.read()).decode("utf-8")
+
 
 if st.session_state.princess_reaction == "happy":
+    img_b64 = carregar_imagem_base64("princesa_feliz.png")
     happy_html = textwrap.dedent(f"""\
-    <style>
-    .happy-princess {{
-        position: fixed;
-        bottom: 20px;
-        left: -300px;
-        z-index: 999999 !important;
-        animation: runAcross 4.5s linear forwards;
-        pointer-events: none;
-    }}
-    @keyframes runAcross {{ 0% {{ left: -300px; }} 100% {{ left: 120%; visibility: hidden; }} }}
-    </style>
-    <div class="happy-princess">{gerar_princesa_svg(feliz=True)}</div>
+    <div class="happy-princess">
+        <img class="princess-bounce" src="data:image/png;base64,{img_b64}" alt="Princesa feliz" />
+    </div>
     """)
     st.markdown(happy_html, unsafe_allow_html=True)
     st.session_state.princess_reaction = None
 
 elif st.session_state.princess_reaction == "sad":
+    img_b64 = carregar_imagem_base64("princesa_triste.png")
     sad_html = textwrap.dedent(f"""\
-    <style>
-    .sad-princess {{
-        position: fixed;
-        bottom: -350px;
-        right: 8%;
-        z-index: 999999 !important;
-        animation: riseAndCry 5.5s ease-in-out forwards;
-        pointer-events: none;
-    }}
-    @keyframes riseAndCry {{ 0% {{ bottom: -350px; opacity: 0; }} 20% {{ bottom: 0px; opacity: 1; }} 80% {{ bottom: 0px; opacity: 1; }} 100% {{ bottom: -350px; opacity: 0; visibility: hidden; }} }}
-    </style>
-    <div class="sad-princess">{gerar_princesa_svg(feliz=False)}</div>
+    <div class="sad-princess">
+        <img class="princess-bounce" src="data:image/png;base64,{img_b64}" alt="Princesa triste" />
+    </div>
     """)
     st.markdown(sad_html, unsafe_allow_html=True)
     st.session_state.princess_reaction = None

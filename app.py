@@ -301,50 +301,51 @@ def rate_label(inv) -> str:
 # 6. ESTILOS (CSS DO APP PRINCIPAL)
 # ============================================================================
 
-st.markdown(f"""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Poppins:wght@400;500;600;700;800&display=swap');
-    html, body, [class*="css"] {{ font-family: 'Poppins', sans-serif; }}
-    .stApp {{ background-color: {BG_1}; background-image: {BG_PATTERN}, radial-gradient(circle at 10% 0%, {BG_2}, transparent 50%), radial-gradient(circle at 90% 100%, #ffcbe0, transparent 50%); color: {TEXT}; }}
-    .block-container {{ max-width: 1200px; padding-top: 1.5rem; }}
-    .hero {{ padding: 2.5rem 2.2rem; border-radius: 26px; background: linear-gradient(120deg, rgba(255,255,255,0.95), rgba(255,240,246,0.95)); border: 2px solid {ACCENT}; margin-bottom: 2rem; box-shadow: 0 18px 45px rgba(255, 20, 147, 0.2); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; backdrop-filter: blur(5px); }}
-    .hero .eyebrow {{ margin: 0; text-transform: uppercase; letter-spacing: 0.25rem; color: {ACCENT}; font-weight: 800; font-size: 0.85rem; }}
-    .hero h1 {{ font-family: 'Playfair Display', serif; margin: 0.15rem 0; font-size: 2.8rem; color: {TEXT}; font-weight: 700; }}
-    .hero p.subtitle {{ color: {TEXT}; max-width: 620px; margin: 0; font-weight: 500; font-size: 1.05rem; }}
-    .hero .hero-icon {{ font-size: 4rem; text-shadow: 2px 2px 15px rgba(255,20,147,0.3); }}
-    .panel-title {{ font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: {TEXT}; margin-bottom: 1rem; border-bottom: 2px solid rgba(255,20,147,0.2); padding-bottom: 0.5rem; }}
-    div[data-testid="stVerticalBlockBorderWrapper"] {{ background: rgba(255,255,255,0.9); border: 2px solid rgba(255, 20, 147, 0.3) !important; border-radius: 22px !important; box-shadow: 0 12px 30px rgba(255, 20, 147, 0.12); padding: 0.5rem; backdrop-filter: blur(5px); }}
-    div[data-testid="stMetric"] {{ background: {PANEL_2}; border-radius: 16px; padding: 1rem; border: 2px solid rgba(255, 20, 147, 0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }}
-    div[data-testid="stMetricLabel"] {{ color: {TEXT}; font-weight: 700; font-size: 1rem; }}
-    div[data-testid="stMetricValue"] {{ color: {TEXT}; font-weight: 800; font-size: 1.6rem; }}
-    .stButton>button, .stFormSubmitButton>button {{ border: 0; border-radius: 12px; font-weight: 700; background: linear-gradient(135deg, {ACCENT}, {ACCENT_2}); color: white; padding: 0.65rem 1.2rem; font-size: 1.05rem; }}
-    .stButton>button:hover, .stFormSubmitButton>button:hover {{ color: white; transform: translateY(-2px); transition: all 0.2s ease; }}
-    button[kind="secondary"] {{ background: {PANEL_2} !important; border: 2px solid {ACCENT} !important; color: {TEXT} !important; }}
-    label, .stSelectbox label p, .stTextInput label p, .stNumberInput label p {{ font-weight: 700 !important; color: {TEXT} !important; }}
-    input, textarea, select, .stSelectbox div[data-baseweb="select"] > div {{ background-color: {PANEL_2} !important; color: {TEXT} !important; border-radius: 12px !important; border: 2px solid rgba(255,20,147,0.3) !important; font-weight: 600 !important; }}
-    .transaction-item, .account-item, .investment-item {{ padding: 1rem 1.2rem; border-radius: 16px; background: {PANEL_2}; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; border: 2px solid rgba(255,20,147,0.2); }}
-    .t-meta strong {{ display:block; color: {TEXT}; font-size: 1.1rem; }}
-    .t-meta span {{ color: {MUTED}; font-size: 0.95rem; font-weight: 600; }}
-    .t-amount {{ font-weight: 800; font-size: 1.15rem; white-space: nowrap; }}
-    .t-amount.income {{ color: {SUCCESS}; }}
-    .t-amount.expense {{ color: {DANGER}; }}
-    .acc-balance {{ font-weight: 800; font-size: 1.2rem; color: {SUCCESS}; }}
-    .acc-balance.negative {{ color: {DANGER}; }}
-    .empty-state {{ padding: 1.5rem; border-radius: 16px; background: {PANEL_2}; color: {TEXT}; text-align: center; font-weight: 600; border: 2px dashed rgba(255,20,147,0.4); }}
-    .legend-item {{ display:flex; justify-content: space-between; color: {TEXT}; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.05rem; }}
-    .legend-badge {{ width: 14px; height: 14px; border-radius: 4px; display:inline-block; margin-right: 0.6rem; border: 1px solid rgba(0,0,0,0.1); }}
-    .inv-card {{ padding: 1.2rem 1.4rem; border-radius: 20px; background: {PANEL_2}; border: 2px solid rgba(255,20,147,0.25); margin-bottom: 1rem; }}
-    .inv-card .inv-top {{ display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }}
-    .inv-card .inv-name {{ font-weight: 800; color: {TEXT}; font-size: 1.2rem; }}
-    .inv-card .inv-meta {{ color: {MUTED}; font-size: 0.95rem; font-weight: 600; margin-top: 0.2rem; }}
-    .inv-badge {{ display:inline-block; padding: 0.25rem 0.7rem; border-radius: 999px; background: {ACCENT}; color: white; font-size: 0.85rem; font-weight: 700; }}
-    .inv-value {{ font-size: 1.4rem; font-weight: 800; color: {TEXT}; text-align: right; }}
-    .inv-gain {{ font-size: 0.95rem; font-weight: 700; text-align: right; margin-top: 0.2rem; }}
-    .inv-gain.positive {{ color: {SUCCESS}; }}
-    .inv-gain.neutral {{ color: {MUTED}; }}
-    section[data-testid="stSidebar"] {{ background: rgba(255, 240, 246, 0.95); border-right: 2px solid rgba(255,20,147,0.2); backdrop-filter: blur(5px); }}
-    </style>
-    """, unsafe_allow_html=True)
+main_css = textwrap.dedent(f"""\
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Poppins:wght@400;500;600;700;800&display=swap');
+html, body, [class*="css"] {{ font-family: 'Poppins', sans-serif; }}
+.stApp {{ background-color: {BG_1}; background-image: {BG_PATTERN}, radial-gradient(circle at 10% 0%, {BG_2}, transparent 50%), radial-gradient(circle at 90% 100%, #ffcbe0, transparent 50%); color: {TEXT}; }}
+.block-container {{ max-width: 1200px; padding-top: 1.5rem; }}
+.hero {{ padding: 2.5rem 2.2rem; border-radius: 26px; background: linear-gradient(120deg, rgba(255,255,255,0.95), rgba(255,240,246,0.95)); border: 2px solid {ACCENT}; margin-bottom: 2rem; box-shadow: 0 18px 45px rgba(255, 20, 147, 0.2); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; backdrop-filter: blur(5px); }}
+.hero .eyebrow {{ margin: 0; text-transform: uppercase; letter-spacing: 0.25rem; color: {ACCENT}; font-weight: 800; font-size: 0.85rem; }}
+.hero h1 {{ font-family: 'Playfair Display', serif; margin: 0.15rem 0; font-size: 2.8rem; color: {TEXT}; font-weight: 700; }}
+.hero p.subtitle {{ color: {TEXT}; max-width: 620px; margin: 0; font-weight: 500; font-size: 1.05rem; }}
+.hero .hero-icon {{ font-size: 4rem; text-shadow: 2px 2px 15px rgba(255,20,147,0.3); }}
+.panel-title {{ font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: {TEXT}; margin-bottom: 1rem; border-bottom: 2px solid rgba(255,20,147,0.2); padding-bottom: 0.5rem; }}
+div[data-testid="stVerticalBlockBorderWrapper"] {{ background: rgba(255,255,255,0.9); border: 2px solid rgba(255, 20, 147, 0.3) !important; border-radius: 22px !important; box-shadow: 0 12px 30px rgba(255, 20, 147, 0.12); padding: 0.5rem; backdrop-filter: blur(5px); }}
+div[data-testid="stMetric"] {{ background: {PANEL_2}; border-radius: 16px; padding: 1rem; border: 2px solid rgba(255, 20, 147, 0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }}
+div[data-testid="stMetricLabel"] {{ color: {TEXT}; font-weight: 700; font-size: 1rem; }}
+div[data-testid="stMetricValue"] {{ color: {TEXT}; font-weight: 800; font-size: 1.6rem; }}
+.stButton>button, .stFormSubmitButton>button {{ border: 0; border-radius: 12px; font-weight: 700; background: linear-gradient(135deg, {ACCENT}, {ACCENT_2}); color: white; padding: 0.65rem 1.2rem; font-size: 1.05rem; }}
+.stButton>button:hover, .stFormSubmitButton>button:hover {{ color: white; transform: translateY(-2px); transition: all 0.2s ease; }}
+button[kind="secondary"] {{ background: {PANEL_2} !important; border: 2px solid {ACCENT} !important; color: {TEXT} !important; }}
+label, .stSelectbox label p, .stTextInput label p, .stNumberInput label p {{ font-weight: 700 !important; color: {TEXT} !important; }}
+input, textarea, select, .stSelectbox div[data-baseweb="select"] > div {{ background-color: {PANEL_2} !important; color: {TEXT} !important; border-radius: 12px !important; border: 2px solid rgba(255,20,147,0.3) !important; font-weight: 600 !important; }}
+.transaction-item, .account-item, .investment-item {{ padding: 1rem 1.2rem; border-radius: 16px; background: {PANEL_2}; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; border: 2px solid rgba(255,20,147,0.2); }}
+.t-meta strong {{ display:block; color: {TEXT}; font-size: 1.1rem; }}
+.t-meta span {{ color: {MUTED}; font-size: 0.95rem; font-weight: 600; }}
+.t-amount {{ font-weight: 800; font-size: 1.15rem; white-space: nowrap; }}
+.t-amount.income {{ color: {SUCCESS}; }}
+.t-amount.expense {{ color: {DANGER}; }}
+.acc-balance {{ font-weight: 800; font-size: 1.2rem; color: {SUCCESS}; }}
+.acc-balance.negative {{ color: {DANGER}; }}
+.empty-state {{ padding: 1.5rem; border-radius: 16px; background: {PANEL_2}; color: {TEXT}; text-align: center; font-weight: 600; border: 2px dashed rgba(255,20,147,0.4); }}
+.legend-item {{ display:flex; justify-content: space-between; color: {TEXT}; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.05rem; }}
+.legend-badge {{ width: 14px; height: 14px; border-radius: 4px; display:inline-block; margin-right: 0.6rem; border: 1px solid rgba(0,0,0,0.1); }}
+.inv-card {{ padding: 1.2rem 1.4rem; border-radius: 20px; background: {PANEL_2}; border: 2px solid rgba(255,20,147,0.25); margin-bottom: 1rem; }}
+.inv-card .inv-top {{ display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }}
+.inv-card .inv-name {{ font-weight: 800; color: {TEXT}; font-size: 1.2rem; }}
+.inv-card .inv-meta {{ color: {MUTED}; font-size: 0.95rem; font-weight: 600; margin-top: 0.2rem; }}
+.inv-badge {{ display:inline-block; padding: 0.25rem 0.7rem; border-radius: 999px; background: {ACCENT}; color: white; font-size: 0.85rem; font-weight: 700; }}
+.inv-value {{ font-size: 1.4rem; font-weight: 800; color: {TEXT}; text-align: right; }}
+.inv-gain {{ font-size: 0.95rem; font-weight: 700; text-align: right; margin-top: 0.2rem; }}
+.inv-gain.positive {{ color: {SUCCESS}; }}
+.inv-gain.neutral {{ color: {MUTED}; }}
+section[data-testid="stSidebar"] {{ background: rgba(255, 240, 246, 0.95); border-right: 2px solid rgba(255,20,147,0.2); backdrop-filter: blur(5px); }}
+</style>
+""")
+st.markdown(main_css, unsafe_allow_html=True)
 
 
 # ============================================================================
@@ -352,26 +353,28 @@ st.markdown(f"""
 # ============================================================================
 
 with st.sidebar:
-    st.markdown(f"""
-        <div style="text-align:center; padding: 1rem 0 1.5rem 0;">
-            <div style="font-size:3.5rem;">👑</div>
-            <div style="font-family:'Playfair Display', serif; font-weight:700; font-size:1.6rem; color:{ACCENT};">Nossas Finanças</div>
-            <div style="color:{TEXT}; font-size:1rem; font-weight: 600;">Olá, {st.session_state.get('username', '')}!</div>
-        </div>
-        """, unsafe_allow_html=True)
+    sidebar_html = textwrap.dedent(f"""\
+    <div style="text-align:center; padding: 1rem 0 1.5rem 0;">
+        <div style="font-size:3.5rem;">👑</div>
+        <div style="font-family:'Playfair Display', serif; font-weight:700; font-size:1.6rem; color:{ACCENT};">Nossas Finanças</div>
+        <div style="color:{TEXT}; font-size:1rem; font-weight: 600;">Olá, {st.session_state.get('username', '')}!</div>
+    </div>
+    """)
+    st.markdown(sidebar_html, unsafe_allow_html=True)
     if st.button("Sair da Conta 👋", use_container_width=True, type="secondary"):
         st.session_state.authenticated = False; st.rerun()
 
-st.markdown("""
-    <div class="hero">
-        <div>
-            <p class="eyebrow">Controle financeiro do casal</p>
-            <h1>Nossas Finanças</h1>
-            <p class="subtitle">Organize gastos, ganhos, investimentos e acompanhe o patrimônio com clareza.</p>
-        </div>
-        <div class="hero-icon">👑</div>
+hero_html = textwrap.dedent("""\
+<div class="hero">
+    <div>
+        <p class="eyebrow">Controle financeiro do casal</p>
+        <h1>Nossas Finanças</h1>
+        <p class="subtitle">Organize gastos, ganhos, investimentos e acompanhe o patrimônio com clareza.</p>
     </div>
-    """, unsafe_allow_html=True)
+    <div class="hero-icon">👑</div>
+</div>
+""")
+st.markdown(hero_html, unsafe_allow_html=True)
 
 
 # ============================================================================

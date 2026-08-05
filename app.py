@@ -315,6 +315,9 @@ html, body, [class*="css"] {{ font-family: 'Poppins', sans-serif; }}
 .hero .hero-icon {{ font-size: 4rem; text-shadow: 2px 2px 15px rgba(255,20,147,0.3); }}
 .panel-title {{ font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: {TEXT}; margin-bottom: 1rem; border-bottom: 2px solid rgba(255,20,147,0.2); padding-bottom: 0.5rem; }}
 div[data-testid="stVerticalBlockBorderWrapper"] {{ background: rgba(255,255,255,0.9); border: 2px solid rgba(255, 20, 147, 0.3) !important; border-radius: 22px !important; box-shadow: 0 12px 30px rgba(255, 20, 147, 0.12); padding: 0.5rem; backdrop-filter: blur(5px); }}
+div[data-testid="stForm"] {{ background: #ffb6c1 !important; backdrop-filter: none !important; border: 2px solid {ACCENT} !important; border-radius: 18px !important; padding: 1.2rem 1.4rem !important; box-shadow: 0 8px 20px rgba(255, 20, 147, 0.15); }}
+div[data-testid="stForm"] label, div[data-testid="stForm"] .stSelectbox label p, div[data-testid="stForm"] .stTextInput label p, div[data-testid="stForm"] .stNumberInput label p, div[data-testid="stForm"] .stDateInput label p {{ color: #4a0e2e !important; font-weight: 800 !important; }}
+div[data-testid="stForm"] input, div[data-testid="stForm"] textarea, div[data-testid="stForm"] select, div[data-testid="stForm"] .stSelectbox div[data-baseweb="select"] > div {{ background-color: #ffffff !important; color: #1f0a1c !important; font-weight: 700 !important; }}
 div[data-testid="stMetric"] {{ background: {PANEL_2}; border-radius: 16px; padding: 1rem; border: 2px solid rgba(255, 20, 147, 0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }}
 div[data-testid="stMetricLabel"] {{ color: {TEXT}; font-weight: 700; font-size: 1rem; }}
 div[data-testid="stMetricValue"] {{ color: {TEXT}; font-weight: 800; font-size: 1.6rem; }}

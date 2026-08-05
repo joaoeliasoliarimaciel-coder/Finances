@@ -118,7 +118,7 @@ def login_css():
     .login-wrap .icon {{ font-size: 3rem; margin-bottom: 0.2rem; }}
     .login-wrap h1 {{ font-family: 'Playfair Display', serif; color: {ACCENT}; font-size: 2.4rem; font-weight: 700; margin: 0; }}
     .login-wrap p {{ color: {TEXT}; font-size: 1rem; font-weight: 600; }}
-    div[data-testid="stForm"] {{ max-width: 440px; margin: 0 auto; border: none !important; background: transparent !important; padding: 0 !important; }}
+    div[data-testid="stForm"] {{ max-width: 440px; margin: 0 auto; border: none !important; background: pink !important; padding: 0 !important; }}
     label, .stTextInput label p {{ color: {TEXT} !important; font-weight: 700 !important; }}
     input {{ background-color: {PANEL_2} !important; color: {TEXT} !important; border-radius: 12px !important; border: 2px solid rgba(255, 20, 147, 0.4) !important; }}
     .stButton>button, .stFormSubmitButton>button {{ border: 0; border-radius: 12px; font-weight: 700; background: linear-gradient(135deg, {ACCENT}, {ACCENT_2}); color: #ffffff !important; width: 100%; padding: 0.75rem 1.1rem; }}

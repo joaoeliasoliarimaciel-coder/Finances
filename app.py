@@ -306,7 +306,7 @@ main_css = textwrap.dedent(f"""\
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Poppins:wght@400;500;600;700;800&display=swap');
 html, body, [class*="css"] {{ font-family: 'Poppins', sans-serif; }}
-.stApp {{ background-color: {BG_1}; background-image: {BG_PATTERN}, radial-gradient(circle at 10% 0%, {BG_2}, transparent 50%), radial-gradient(circle at 90% 100%, #ffcbe0, transparent 50%); color: {TEXT}; }}
+.stApp {{ background-color: {BG_1}; background-image: {BG_PATTERN}, radial-gradient(circle at 10% 0%, {BG_2}, transparent 10%), radial-gradient(circle at 90% 100%, #ffcbe0, transparent 10%); color: {TEXT}; }}
 .block-container {{ max-width: 1200px; padding-top: 1.5rem; }}
 .hero {{ padding: 2.5rem 2.2rem; border-radius: 26px; background: linear-gradient(120deg, rgba(255,255,255,0.95), rgba(255,240,246,0.95)); border: 2px solid {ACCENT}; margin-bottom: 2rem; box-shadow: 0 18px 45px rgba(255, 20, 147, 0.2); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; backdrop-filter: blur(5px); }}
 .hero .eyebrow {{ margin: 0; text-transform: uppercase; letter-spacing: 0.25rem; color: {ACCENT}; font-weight: 800; font-size: 0.85rem; }}

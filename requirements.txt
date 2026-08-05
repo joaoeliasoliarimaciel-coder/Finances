@@ -2,3 +2,4 @@ streamlit
 plotly
 yfinance 
 requests
+starlette<0.48

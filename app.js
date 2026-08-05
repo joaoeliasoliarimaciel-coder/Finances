@@ -437,7 +437,7 @@ function renderBarChart(income, expenses) {
   const left = 50;
   const heights = [income / max * 140, expenses / max * 140];
   const labels = ['Ganhos', 'Gastos'];
-  const colors = ['#41c7ae', '#ff6987'];
+  const colors = ['#009e73', '#d55e00'];
 
   barChart.innerHTML = `
     <rect x="0" y="0" width="320" height="220" rx="18" fill="transparent"></rect>
@@ -447,8 +447,8 @@ function renderBarChart(income, expenses) {
         const y = 180 - heights[index];
         return `
           <rect x="${x}" y="${y}" width="${barWidth}" height="${heights[index]}" rx="10" fill="${colors[index]}"></rect>
-          <text x="${x + barWidth / 2}" y="200" text-anchor="middle" fill="#93a7c9" font-size="11">${label}</text>
-          <text x="${x + barWidth / 2}" y="${y - 8}" text-anchor="middle" fill="#f3f7ff" font-size="11">${formatCurrency(index === 0 ? income : expenses)}</text>
+          <text x="${x + barWidth / 2}" y="200" text-anchor="middle" fill="#5c3a58" font-size="11" font-weight="600">${label}</text>
+          <text x="${x + barWidth / 2}" y="${y - 8}" text-anchor="middle" fill="#1f0a1c" font-size="11" font-weight="700">${formatCurrency(index === 0 ? income : expenses)}</text>
         `;
       })
       .join('')}
@@ -459,8 +459,8 @@ function renderDonutChart(expenses) {
   const total = expenses.reduce((acc, item) => acc + item.amount, 0);
   if (total === 0) {
     donutChart.innerHTML = `
-      <circle cx="110" cy="110" r="70" fill="none" stroke="#16263b" stroke-width="38"></circle>
-      <text x="110" y="112" text-anchor="middle" fill="#93a7c9">Sem dados</text>
+      <circle cx="110" cy="110" r="70" fill="none" stroke="#fff0f6" stroke-width="38"></circle>
+      <text x="110" y="112" text-anchor="middle" fill="#5c3a58">Sem dados</text>
     `;
     legendEl.innerHTML = '';
     return;
@@ -471,7 +471,7 @@ function renderDonutChart(expenses) {
     return acc;
   }, {});
 
-  const colors = ['#41c7ae', '#6f7cff', '#ff6987', '#ffbe5c', '#5dc9ff', '#e36dff', '#8df0c8'];
+  const colors = ['#cc79a7', '#0072b2', '#e69f00', '#009e73', '#56b4e9', '#d55e00', '#f0e442'];
   const entries = Object.entries(categories);
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
@@ -488,10 +488,10 @@ function renderDonutChart(expenses) {
     .join('');
 
   donutChart.innerHTML = `
-    <circle cx="110" cy="110" r="70" fill="none" stroke="#16263b" stroke-width="38"></circle>
+    <circle cx="110" cy="110" r="70" fill="none" stroke="#fff0f6" stroke-width="38"></circle>
     ${segments}
-    <text x="110" y="105" text-anchor="middle" fill="#f3f7ff" font-size="16">${formatCurrency(total)}</text>
-    <text x="110" y="126" text-anchor="middle" fill="#93a7c9" font-size="11">Gastos</text>
+    <text x="110" y="105" text-anchor="middle" fill="#1f0a1c" font-size="16" font-weight="700">${formatCurrency(total)}</text>
+    <text x="110" y="126" text-anchor="middle" fill="#5c3a58" font-size="11" font-weight="600">Gastos</text>
   `;
 
   legendEl.innerHTML = entries

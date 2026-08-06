@@ -446,9 +446,9 @@ function renderBarChart(income, expenses) {
         const x = left + index * (barWidth + gap);
         const y = 180 - heights[index];
         return `
-          <rect x="${x}" y="${y}" width="${barWidth}" height="${heights[index]}" rx="10" fill="${colors[index]}"></rect>
-          <text x="${x + barWidth / 2}" y="200" text-anchor="middle" fill="#5c3a58" font-size="11" font-weight="600">${label}</text>
-          <text x="${x + barWidth / 2}" y="${y - 8}" text-anchor="middle" fill="#1f0a1c" font-size="11" font-weight="700">${formatCurrency(index === 0 ? income : expenses)}</text>
+          <rect x="${x}" y="${y}" width="${barWidth}" height="${heights[index]}" rx="10" fill="${colors[index]}" stroke="#ffffff" stroke-width="2"></rect>
+          <text x="${x + barWidth / 2}" y="200" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="700">${label}</text>
+          <text x="${x + barWidth / 2}" y="${y - 8}" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="800">${formatCurrency(index === 0 ? income : expenses)}</text>
         `;
       })
       .join('')}
@@ -459,8 +459,8 @@ function renderDonutChart(expenses) {
   const total = expenses.reduce((acc, item) => acc + item.amount, 0);
   if (total === 0) {
     donutChart.innerHTML = `
-      <circle cx="110" cy="110" r="70" fill="none" stroke="#fff0f6" stroke-width="38"></circle>
-      <text x="110" y="112" text-anchor="middle" fill="#5c3a58">Sem dados</text>
+      <circle cx="110" cy="110" r="70" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="38"></circle>
+      <text x="110" y="112" text-anchor="middle" fill="#ffffff" font-weight="600">Sem dados</text>
     `;
     legendEl.innerHTML = '';
     return;
@@ -488,10 +488,10 @@ function renderDonutChart(expenses) {
     .join('');
 
   donutChart.innerHTML = `
-    <circle cx="110" cy="110" r="70" fill="none" stroke="#fff0f6" stroke-width="38"></circle>
+    <circle cx="110" cy="110" r="70" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="38"></circle>
     ${segments}
-    <text x="110" y="105" text-anchor="middle" fill="#1f0a1c" font-size="16" font-weight="700">${formatCurrency(total)}</text>
-    <text x="110" y="126" text-anchor="middle" fill="#5c3a58" font-size="11" font-weight="600">Gastos</text>
+    <text x="110" y="105" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="800">${formatCurrency(total)}</text>
+    <text x="110" y="126" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="600">Gastos</text>
   `;
 
   legendEl.innerHTML = entries

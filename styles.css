@@ -1,423 +1,187 @@
-:root {
-  color-scheme: light;
-  --bg-1: #ffe4e1;
-  --bg-2: #ffb6c1;
-  --panel: #ffffff;
-  --panel-2: #fff0f6;
-  --text: #1f0a1c;
-  --muted: #5c3a58;
-  --accent: #ff1493;
-  --accent-2: #d500f9;
-  --danger: #b71c1c;
-  --warning: #e65100;
-  --success: #0a7040;
-  --success-chart: #009e73;
-  --danger-chart: #d55e00;
-}
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finanças Pessoais</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Controle financeiro</p>
+        <h1>Finanças Pessoais</h1>
+        <p class="subtitle">
+          Organize gastos, ganhos, investimentos, contas e acompanhe seu saldo em tempo real.
+        </p>
+      </div>
+    </header>
 
-* {
-  box-sizing: border-box;
-}
+    <main class="container">
+      <section class="panel">
+        <div class="section-header">
+          <h2>Nova movimentação</h2>
+          <label class="inline-field">
+            <span>Mês</span>
+            <input type="month" id="period" />
+          </label>
+        </div>
 
-body {
-  margin: 0;
-  font-family: 'Poppins', Arial, sans-serif;
-  background-color: var(--bg-1);
-  background-image:
-    url("data:image/svg+xml,%3Csvg width='160' height='160' viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='20' y='40' font-size='24' opacity='0.35'%3E%F0%9F%8C%B8%3C/text%3E%3Ctext x='100' y='40' font-size='24' opacity='0.35'%3E%F0%9F%91%91%3C/text%3E%3Ctext x='20' y='120' font-size='24' opacity='0.35'%3E%E2%AD%90%3C/text%3E%3Ctext x='100' y='120' font-size='24' opacity='0.35'%3E%F0%9F%8E%80%3C/text%3E%3C/svg%3E"),
-    radial-gradient(circle at 10% 0%, var(--bg-2), transparent 55%),
-    radial-gradient(circle at 90% 100%, #ffcbe0, transparent 55%);
-  color: var(--text);
-}
+        <form id="transaction-form" class="form-grid">
+          <label>
+            <span>Tipo</span>
+            <select id="type">
+              <option value="expense">Gasto</option>
+              <option value="income">Ganho</option>
+            </select>
+          </label>
 
-.hero {
-  padding: 2.5rem 2.2rem;
-  margin: 1.5rem auto 2rem;
-  width: min(1120px, calc(100% - 2rem));
-  border-radius: 26px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 18px 45px rgba(255, 20, 147, 0.3);
-}
+          <label>
+            <span>Categoria</span>
+            <select id="category"></select>
+          </label>
 
-.hero h1 {
-  font-family: 'Playfair Display', serif;
-  margin: 0.15rem 0;
-  font-size: clamp(2rem, 4vw, 2.8rem);
-  font-weight: 700;
-  color: #ffffff;
-}
+          <label>
+            <span>Conta</span>
+            <select id="transaction-account"></select>
+          </label>
 
-.eyebrow {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.25rem;
-  color: #fff0f6;
-  font-weight: 800;
-  font-size: 0.85rem;
-}
+          <label>
+            <span>Descrição</span>
+            <input id="description" type="text" placeholder="Ex.: Mercado da semana" required />
+          </label>
 
-.subtitle {
-  color: rgba(255, 255, 255, 0.9);
-  max-width: 650px;
-  font-weight: 500;
-}
+          <label>
+            <span>Valor</span>
+            <input id="amount" type="number" min="0.01" step="0.01" placeholder="0,00" required />
+          </label>
 
-.container {
-  width: min(1120px, calc(100% - 2rem));
-  margin: 0 auto 3rem;
-  display: grid;
-  gap: 1.25rem;
-}
+          <label>
+            <span>Data</span>
+            <input id="date" type="date" required />
+          </label>
 
-.panel,
-.card,
-.chart-card {
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 22px;
-  box-shadow: 0 12px 30px rgba(255, 20, 147, 0.22);
-}
+          <button type="submit">Adicionar</button>
+        </form>
+      </section>
 
-.panel {
-  padding: 1.4rem;
-}
+      <section class="summary-grid">
+        <article class="card card-income">
+          <p>Ganhos</p>
+          <strong id="income-total">R$ 0,00</strong>
+        </article>
+        <article class="card card-expense">
+          <p>Gastos</p>
+          <strong id="expense-total">R$ 0,00</strong>
+        </article>
+        <article class="card card-balance">
+          <p>Saldo do mês</p>
+          <strong id="balance-total">R$ 0,00</strong>
+        </article>
+        <article class="card card-account">
+          <p>Disponível nas contas</p>
+          <strong id="accounts-total">R$ 0,00</strong>
+        </article>
+        <article class="card card-investment">
+          <p>Patrimônio total</p>
+          <strong id="net-worth">R$ 0,00</strong>
+        </article>
+      </section>
 
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
+      <section class="panel">
+        <div class="section-header">
+          <h2>Movimentações</h2>
+          <button id="clear-data" class="ghost-button" type="button">Limpar dados</button>
+        </div>
+        <ul id="transactions-list" class="transaction-list"></ul>
+      </section>
 
-.section-header h2 {
-  margin: 0;
-  font-family: 'Playfair Display', serif;
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #ffffff;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.35);
-  padding-bottom: 0.4rem;
-}
+      <section class="panel">
+        <div class="section-header">
+          <h2>Contas</h2>
+        </div>
 
-/* Formulários: mesmo gradiente do botão "Adicionar", sem transparência, letras bem legíveis */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 0.85rem;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 18px;
-  padding: 1.2rem 1.4rem;
-  backdrop-filter: none;
-}
+        <form id="account-form" class="form-grid compact accounts-grid">
+          <label>
+            <span>Conta</span>
+            <select id="account-select"></select>
+          </label>
+          <label>
+            <span>Operação</span>
+            <select id="account-operation">
+              <option value="set">Definir valor</option>
+              <option value="add">Adicionar</option>
+              <option value="subtract">Subtrair</option>
+            </select>
+          </label>
+          <label>
+            <span>Valor</span>
+            <input id="account-amount" type="number" min="0" step="0.01" placeholder="0,00" required />
+          </label>
+          <label>
+            <span>Descrição</span>
+            <input id="account-description" type="text" placeholder="Ex.: Juros, ajuste manual" />
+          </label>
+          <button type="submit">Atualizar conta</button>
+        </form>
 
-.form-grid.compact {
-  grid-template-columns: 1.2fr 1fr 1fr 1.3fr auto;
-}
+        <div id="accounts-list" class="account-list"></div>
+      </section>
 
-.accounts-grid {
-  grid-template-columns: 1.1fr 0.9fr 0.9fr 1.3fr auto;
-}
+      <section class="panel">
+        <h2>Gráficos</h2>
+        <div class="chart-grid">
+          <article class="chart-card">
+            <h3>Receitas x Despesas</h3>
+            <svg id="bar-chart" viewBox="0 0 320 220"></svg>
+          </article>
+          <article class="chart-card">
+            <h3>Despesas por categoria</h3>
+            <svg id="donut-chart" viewBox="0 0 220 220"></svg>
+            <div id="legend" class="legend"></div>
+          </article>
+        </div>
+      </section>
 
-label {
-  display: grid;
-  gap: 0.35rem;
-  font-size: 0.95rem;
-  color: #ffffff;
-  font-weight: 800;
-}
+      <section class="panel">
+        <div class="section-header">
+          <h2>Investimentos</h2>
+        </div>
 
-input,
-select,
-button {
-  font: inherit;
-}
+        <form id="investment-form" class="form-grid compact">
+          <label>
+            <span>Nome do investimento</span>
+            <input id="investment-name" type="text" placeholder="Ex.: Poupança" required />
+          </label>
+          <label>
+            <span>Valor aplicado</span>
+            <input id="investment-amount" type="number" min="0" step="0.01" placeholder="0,00" required />
+          </label>
+          <label>
+            <span>Onde está aplicado</span>
+            <input id="investment-location" type="text" placeholder="Ex.: Banco, Tesouro, CDB" />
+          </label>
+          <button type="submit">Salvar investimento</button>
+        </form>
 
-input,
-select {
-  padding: 0.75rem 0.85rem;
-  border-radius: 12px;
-  border: 2px solid rgba(255, 20, 147, 0.35);
-  background: #ffffff;
-  color: var(--text);
-  font-weight: 600;
-}
+        <div id="investments-list" class="investment-list"></div>
 
-button {
-  border: 2px solid #ffffff;
-  border-radius: 12px;
-  padding: 0.8rem 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  color: white;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-}
+        <form id="invest-more-form" class="form-grid compact">
+          <label>
+            <span>Investimento</span>
+            <select id="investment-select"></select>
+          </label>
+          <label>
+            <span>Valor extra</span>
+            <input id="extra-amount" type="number" min="0.01" step="0.01" placeholder="0,00" required />
+          </label>
+          <button type="submit">Adicionar valor</button>
+        </form>
+      </section>
+    </main>
 
-button:hover {
-  transform: translateY(-2px);
-  transition: all 0.2s ease;
-}
-
-.ghost-button {
-  background: rgba(255, 255, 255, 0.18);
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  color: #ffffff;
-}
-
-.inline-field {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #ffffff;
-  font-weight: 600;
-}
-
-.inline-field input {
-  min-width: 140px;
-}
-
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 1rem;
-  width: min(1120px, calc(100% - 2rem));
-  margin: 0 auto;
-}
-
-.card {
-  padding: 1rem 1.1rem;
-}
-
-.card p {
-  margin: 0 0 0.25rem;
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 700;
-}
-
-.card strong {
-  font-size: 1.3rem;
-  color: #ffffff;
-  font-weight: 800;
-}
-
-.card-income,
-.card-expense,
-.card-balance,
-.card-account,
-.card-investment {
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-.transaction-list,
-.investment-list,
-.account-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 0.8rem;
-}
-
-.transaction-item,
-.investment-item,
-.account-item {
-  padding: 1rem 1.2rem;
-  border-radius: 16px;
-  background: var(--panel-2);
-  border: 2px solid rgba(255, 20, 147, 0.2);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
-
-.transaction-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.transaction-meta strong {
-  color: var(--text);
-  font-size: 1.05rem;
-}
-
-.transaction-meta span {
-  color: var(--muted);
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.transaction-amount {
-  font-weight: 800;
-  white-space: nowrap;
-  font-size: 1.1rem;
-}
-
-.transaction-amount.income {
-  color: var(--success);
-}
-
-.transaction-amount.expense {
-  color: var(--danger);
-}
-
-.remove-btn {
-  padding: 0.45rem 0.7rem;
-  background: var(--panel-2);
-  border: 2px solid var(--accent);
-  color: var(--text);
-}
-
-.account-item strong,
-.investment-item strong {
-  color: var(--text);
-}
-
-.account-item div div {
-  color: var(--muted);
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.account-balance {
-  font-weight: 800;
-  white-space: nowrap;
-  font-size: 1.15rem;
-  color: var(--success);
-}
-
-.account-balance.negative {
-  color: var(--danger);
-}
-
-.chart-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 1rem;
-}
-
-.chart-card {
-  padding: 1.2rem;
-}
-
-.chart-card h3 {
-  margin-top: 0;
-  color: #ffffff;
-  font-family: 'Playfair Display', serif;
-  font-weight: 700;
-}
-
-.legend {
-  display: grid;
-  gap: 0.55rem;
-  margin-top: 0.5rem;
-}
-
-.legend-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #ffffff;
-  font-weight: 600;
-}
-
-.legend-badge {
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
-  display: inline-block;
-  margin-right: 0.55rem;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-}
-
-.empty-state {
-  padding: 1.4rem;
-  border-radius: 16px;
-  background: var(--panel-2);
-  color: var(--text);
-  text-align: center;
-  font-weight: 600;
-  border: 2px dashed rgba(255, 20, 147, 0.4);
-}
-
-.princess-overlay {
-  position: fixed;
-  z-index: 9999;
-  pointer-events: none;
-}
-
-.princess-overlay .princess-bounce {
-  display: block;
-  width: 160px;
-  height: auto;
-  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.25));
-  animation: princess-bounce 0.6s infinite alternate ease-in-out;
-}
-
-@keyframes princess-bounce {
-  from {
-    transform: translateY(-8px);
-  }
-  to {
-    transform: translateY(8px);
-  }
-}
-
-.princess-happy {
-  bottom: 20px;
-  left: -300px;
-  animation: princess-run-across 4.5s linear forwards;
-}
-
-@keyframes princess-run-across {
-  0% {
-    left: -300px;
-  }
-  100% {
-    left: 120%;
-  }
-}
-
-.princess-sad {
-  bottom: -350px;
-  right: 8%;
-  animation: princess-rise-and-cry 5.5s ease-in-out forwards;
-}
-
-@keyframes princess-rise-and-cry {
-  0% {
-    bottom: -350px;
-    opacity: 0;
-  }
-  20% {
-    bottom: 0px;
-    opacity: 1;
-  }
-  80% {
-    bottom: 0px;
-    opacity: 1;
-  }
-  100% {
-    bottom: -350px;
-    opacity: 0;
-  }
-}
-
-@media (max-width: 900px) {
-  .form-grid,
-  .form-grid.compact,
-  .accounts-grid,
-  .summary-grid,
-  .chart-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
+    <script src="app.js"></script>
+  </body>
+</html>

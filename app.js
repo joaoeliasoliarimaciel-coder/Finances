@@ -437,7 +437,7 @@ function renderBarChart(income, expenses) {
   const left = 50;
   const heights = [income / max * 140, expenses / max * 140];
   const labels = ['Ganhos', 'Gastos'];
-  const colors = ['#009e73', '#d55e00'];
+  const colors = ['#5c7a60', '#a3454b'];
 
   barChart.innerHTML = `
     <rect x="0" y="0" width="320" height="220" rx="18" fill="transparent"></rect>
@@ -446,9 +446,9 @@ function renderBarChart(income, expenses) {
         const x = left + index * (barWidth + gap);
         const y = 180 - heights[index];
         return `
-          <rect x="${x}" y="${y}" width="${barWidth}" height="${heights[index]}" rx="10" fill="${colors[index]}" stroke="#ffffff" stroke-width="2"></rect>
-          <text x="${x + barWidth / 2}" y="200" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="700">${label}</text>
-          <text x="${x + barWidth / 2}" y="${y - 8}" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="800">${formatCurrency(index === 0 ? income : expenses)}</text>
+          <rect x="${x}" y="${y}" width="${barWidth}" height="${heights[index]}" rx="6" fill="${colors[index]}" stroke="#c6a15b" stroke-width="1"></rect>
+          <text x="${x + barWidth / 2}" y="200" text-anchor="middle" fill="#8a6d72" font-size="11" font-weight="500" font-family="Jost, sans-serif">${label}</text>
+          <text x="${x + barWidth / 2}" y="${y - 8}" text-anchor="middle" fill="#5c2338" font-size="12" font-weight="600" font-family="Cormorant Garamond, serif">${formatCurrency(index === 0 ? income : expenses)}</text>
         `;
       })
       .join('')}
@@ -459,8 +459,8 @@ function renderDonutChart(expenses) {
   const total = expenses.reduce((acc, item) => acc + item.amount, 0);
   if (total === 0) {
     donutChart.innerHTML = `
-      <circle cx="110" cy="110" r="70" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="38"></circle>
-      <text x="110" y="112" text-anchor="middle" fill="#ffffff" font-weight="600">Sem dados</text>
+      <circle cx="110" cy="110" r="70" fill="none" stroke="#f7e9e2" stroke-width="34"></circle>
+      <text x="110" y="112" text-anchor="middle" fill="#8a6d72" font-weight="500" font-style="italic" font-family="Cormorant Garamond, serif">Sem dados</text>
     `;
     legendEl.innerHTML = '';
     return;
@@ -471,7 +471,7 @@ function renderDonutChart(expenses) {
     return acc;
   }, {});
 
-  const colors = ['#cc79a7', '#0072b2', '#e69f00', '#009e73', '#56b4e9', '#d55e00', '#f0e442'];
+  const colors = ['#b4707c', '#5c2338', '#c6a15b', '#5c7a60', '#8aa1b1', '#9c6b78', '#c08552'];
   const entries = Object.entries(categories);
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
@@ -483,15 +483,15 @@ function renderDonutChart(expenses) {
       const strokeDasharray = `${segmentLength} ${circumference - segmentLength}`;
       const strokeDashoffset = -offset;
       offset += segmentLength;
-      return `<circle cx="110" cy="110" r="70" fill="none" stroke="${colors[index % colors.length]}" stroke-width="38" stroke-linecap="round" stroke-dasharray="${strokeDasharray}" stroke-dashoffset="${strokeDashoffset}" transform="rotate(-90 110 110)"></circle>`;
+      return `<circle cx="110" cy="110" r="70" fill="none" stroke="${colors[index % colors.length]}" stroke-width="34" stroke-dasharray="${strokeDasharray}" stroke-dashoffset="${strokeDashoffset}" transform="rotate(-90 110 110)"></circle>`;
     })
     .join('');
 
   donutChart.innerHTML = `
-    <circle cx="110" cy="110" r="70" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="38"></circle>
+    <circle cx="110" cy="110" r="70" fill="none" stroke="#f7e9e2" stroke-width="34"></circle>
     ${segments}
-    <text x="110" y="105" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="800">${formatCurrency(total)}</text>
-    <text x="110" y="126" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="600">Gastos</text>
+    <text x="110" y="107" text-anchor="middle" fill="#5c2338" font-size="17" font-weight="600" font-family="Cormorant Garamond, serif">${formatCurrency(total)}</text>
+    <text x="110" y="126" text-anchor="middle" fill="#8a6d72" font-size="10" font-weight="500" letter-spacing="1" font-family="Jost, sans-serif">GASTOS</text>
   `;
 
   legendEl.innerHTML = entries

@@ -1,11 +1,13 @@
 import base64
 import hashlib
+import io
 import json
 import os
 import secrets
 import textwrap
 import uuid
 import requests
+import pandas as pd
 import yfinance as yf
 from datetime import date, datetime, timedelta
 
@@ -85,7 +87,7 @@ def get_credentials():
             creds = dict(st.secrets["credentials"])
             if creds: return creds
     except Exception: pass
-    return {"casal": "financas2026"}
+    return {"Imiris": "Imiris#2026"}
 
 CREDENTIALS = get_credentials()
 USERS_FILE = os.path.join(os.path.dirname(__file__), "users.json")
@@ -138,40 +140,17 @@ def login_css():
 
 def login_screen():
     login_css()
-    st.markdown('<div class="login-wrap"><div class="icon">🌸</div><h1>Nossas Finanças</h1><p>Entre com sua conta.</p></div>', unsafe_allow_html=True)
-    tab_login, tab_signup = st.tabs(["Entrar", "Criar conta"])
+    st.markdown('<div class="login-wrap"><div class="icon">🌸</div><h1>Nossas Finanças</h1><p>Bem-vinda, Imiris.</p></div>', unsafe_allow_html=True)
 
-    with tab_login:
-        with st.form("login_form"):
-            user = st.text_input("Usuário", key="login_user")
-            pwd = st.text_input("Senha", type="password", key="login_pwd")
-            if st.form_submit_button("Entrar 💖"):
-                registered_users = load_users()
-                user_clean = (user or "").strip()
-                if (user_clean in CREDENTIALS and pwd == CREDENTIALS[user_clean]) or (user_clean in registered_users and verify_password(pwd, registered_users[user_clean].get("password_hash", ""))):
-                    st.session_state.authenticated = True
-                    st.session_state.username = user_clean
-                    st.rerun()
-                else: st.error("Usuário ou senha incorretos.")
-
-    with tab_signup:
-        with st.form("signup_form", clear_on_submit=True):
-            new_user = st.text_input("Escolha um usuário", key="signup_user")
-            new_pwd = st.text_input("Escolha uma senha", type="password", key="signup_pwd")
-            new_pwd_confirm = st.text_input("Confirme a senha", type="password", key="signup_pwd_confirm")
-            if st.form_submit_button("Criar conta ✨"):
-                registered_users = load_users()
-                user_clean = (new_user or "").strip()
-                if not user_clean or len(new_pwd) < 6: st.warning("Preencha usuário e senha (mínimo 6 caracteres).")
-                elif new_pwd != new_pwd_confirm: st.warning("As senhas não coincidem.")
-                elif username_taken(user_clean, registered_users): st.warning("Usuário já existe.")
-                else:
-                    registered_users[user_clean] = {"password_hash": hash_password(new_pwd), "created_at": datetime.now().isoformat()}
-                    save_users(registered_users)
-                    st.session_state.authenticated = True
-                    st.session_state.username = user_clean
-                    st.success("Conta criada! Entrando...")
-                    st.rerun()
+    with st.form("login_form"):
+        pwd = st.text_input("Senha", type="password", key="login_pwd", placeholder="Digite sua senha")
+        if st.form_submit_button("Entrar 💖"):
+            if pwd == CREDENTIALS.get("Imiris"):
+                st.session_state.authenticated = True
+                st.session_state.username = "Imiris"
+                st.rerun()
+            else:
+                st.error("Senha incorreta.")
 
 if "authenticated" not in st.session_state: st.session_state.authenticated = False
 if not st.session_state.authenticated: login_screen(); st.stop()
@@ -253,6 +232,14 @@ if "state" not in st.session_state: st.session_state.state = load_state()
 state = st.session_state.state
 if "confirm_clear" not in st.session_state: st.session_state.confirm_clear = False
 
+# Virada de mês automática: assim que o mês do calendário muda, o período de
+# trabalho passa a ser o novo mês (o histórico do mês anterior fica preservado
+# e acessível na aba "Meses Anteriores").
+_current_month_str = date.today().strftime("%Y-%m")
+if state["period"] != _current_month_str:
+    state["period"] = _current_month_str
+    save_state()
+
 
 # ============================================================================
 # 5. FUNÇÕES DE APOIO E CÁLCULOS
@@ -305,6 +292,131 @@ def rate_label(inv) -> str:
     return f"{inv.get('rate', 0.0):.2f}% {'ao mês' if inv.get('rate_period', 'Mensal') == 'Mensal' else 'ao ano'}".replace(".", ",")
 
 
+def build_excel_bytes(transactions: list) -> bytes:
+    """Gera um arquivo Excel (bytes) com as movimentações e um resumo."""
+    rows = []
+    for t in transactions:
+        rows.append({
+            "Tipo": "Ganho" if t["type"] == "income" else "Gasto",
+            "Categoria": t.get("category", ""),
+            "Descrição": t.get("description", ""),
+            "Valor": t.get("amount", 0.0),
+            "Data": t.get("date", ""),
+            "Conta": t.get("accountName") or "",
+        })
+    df = pd.DataFrame(rows, columns=["Tipo", "Categoria", "Descrição", "Valor", "Data", "Conta"])
+
+    income_total = sum(t["amount"] for t in transactions if t["type"] == "income")
+    expense_total = sum(t["amount"] for t in transactions if t["type"] == "expense")
+    resumo = pd.DataFrame({
+        "Resumo": ["Ganhos", "Gastos", "Saldo"],
+        "Valor": [income_total, expense_total, income_total - expense_total],
+    })
+
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="Movimentações")
+        resumo.to_excel(writer, index=False, sheet_name="Resumo")
+    output.seek(0)
+    return output.getvalue()
+
+
+def render_split_history(transactions: list, key_prefix: str, allow_remove: bool = True):
+    """Mostra o histórico separado em duas colunas compactas: Gastos e Ganhos."""
+    expense_items = [t for t in transactions if t["type"] == "expense"]
+    income_items = [t for t in transactions if t["type"] == "income"]
+
+    col_exp, col_inc = st.columns(2)
+
+    def render_column(container, items, label, cls, icon):
+        with container:
+            st.markdown(
+                f'<div style="font-weight:600; color:{ACCENT_2}; text-transform:uppercase; '
+                f'letter-spacing:0.07em; font-size:0.78rem; margin-bottom:0.6rem;">{icon} {label} ({len(items)})</div>',
+                unsafe_allow_html=True,
+            )
+            if not items:
+                st.markdown('<div class="empty-state" style="padding:0.9rem; font-size:0.95rem;">Nada por aqui ainda.</div>', unsafe_allow_html=True)
+                return
+            for t in items:
+                meta_line = f'{t["category"]} • {t["date"]}'
+                if t.get("accountName"): meta_line += f' • {t["accountName"]}'
+                sign = "+" if cls == "income" else "-"
+                if allow_remove:
+                    rc1, rc2 = st.columns([6, 1])
+                    with rc1:
+                        st.markdown(
+                            f'<div class="mini-row"><div class="t-meta"><strong>{t["description"]}</strong>'
+                            f'<span>{meta_line}</span></div><div class="t-amount {cls}">{sign}{format_currency(t["amount"])}</div></div>',
+                            unsafe_allow_html=True,
+                        )
+                    with rc2:
+                        if st.button("✕", key=f"{key_prefix}_rm_{t['id']}"):
+                            if t.get("accountId"):
+                                acc = find_account(t["accountId"])
+                                if acc:
+                                    if t["type"] == "expense": acc["balance"] += t["amount"]
+                                    else: acc["balance"] -= t["amount"]
+                            state["transactions"] = [x for x in state["transactions"] if x["id"] != t["id"]]
+                            save_state(); st.rerun()
+                else:
+                    st.markdown(
+                        f'<div class="mini-row"><div class="t-meta"><strong>{t["description"]}</strong>'
+                        f'<span>{meta_line}</span></div><div class="t-amount {cls}">{sign}{format_currency(t["amount"])}</div></div>',
+                        unsafe_allow_html=True,
+                    )
+
+    render_column(col_exp, expense_items, "Gastos", "expense", "🛍️")
+    render_column(col_inc, income_items, "Ganhos", "income", "💐")
+
+
+def render_charts(transactions: list, key_prefix: str):
+    """Renderiza o gráfico de barras (Ganhos x Gastos) e a rosca de categorias."""
+    income_v = sum(t["amount"] for t in transactions if t["type"] == "income")
+    expenses_v = sum(t["amount"] for t in transactions if t["type"] == "expense")
+
+    g1, g2 = st.columns([1.2, 0.8])
+
+    with g1:
+        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Receitas x Despesas</span>**", unsafe_allow_html=True)
+        bar_fig = go.Figure(data=[go.Bar(
+            x=["Ganhos", "Gastos"], y=[income_v, expenses_v],
+            marker_color=[SUCCESS_CHART, DANGER_CHART], marker_line=dict(color=TEXT, width=1.5),
+            text=[format_currency(income_v), format_currency(expenses_v)], textposition="auto",
+            textfont=dict(color="white", size=16), width=0.4,
+        )])
+        bar_fig.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color=TEXT, family="Jost", size=14),
+            yaxis=dict(showgrid=True, gridcolor="rgba(0,0,0,0.15)", zeroline=True, zerolinecolor=TEXT, zerolinewidth=2, visible=True, color=TEXT),
+            xaxis=dict(showgrid=False, showline=True, linewidth=2, linecolor=TEXT, color=TEXT, tickfont=dict(size=15, color=TEXT)),
+            margin=dict(l=10, r=10, t=30, b=10), height=320, showlegend=False,
+        )
+        st.plotly_chart(bar_fig, use_container_width=True, theme=None, key=f"{key_prefix}_bar")
+
+    with g2:
+        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Despesas por categoria</span>**", unsafe_allow_html=True)
+        expense_items = [t for t in transactions if t["type"] == "expense"]
+        totals_by_cat = {}
+        for t in expense_items: totals_by_cat[t["category"]] = totals_by_cat.get(t["category"], 0) + t["amount"]
+
+        if not totals_by_cat:
+            donut_fig = go.Figure(data=[go.Pie(labels=["Sem dados"], values=[1], hole=0.65, marker=dict(colors=[PANEL_2]), textinfo="none")])
+        else:
+            donut_fig = go.Figure(data=[go.Pie(labels=list(totals_by_cat.keys()), values=list(totals_by_cat.values()), hole=0.65, marker=dict(colors=COLORS * 3, line=dict(color=PANEL, width=3)), textinfo="none")])
+
+        donut_fig.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color=TEXT, family="Jost"),
+            margin=dict(l=10, r=10, t=30, b=10), height=320, showlegend=False,
+            annotations=[dict(text=f"Total:<br>{format_currency(sum(totals_by_cat.values()))}" if totals_by_cat else "Sem dados", x=0.5, y=0.5, font_size=16, showarrow=False, font_color=TEXT)],
+        )
+        st.plotly_chart(donut_fig, use_container_width=True, key=f"{key_prefix}_donut")
+
+        if totals_by_cat:
+            for idx, (name, value) in enumerate(totals_by_cat.items()):
+                color = COLORS[idx % len(COLORS)]
+                st.markdown(f'<div class="legend-item"><span style="display:flex; align-items:center;"><span class="legend-badge" style="background:{color}; border: 2px solid {TEXT};"></span>{name}</span><strong>{format_currency(value)}</strong></div>', unsafe_allow_html=True)
+
+
 # ============================================================================
 # 6. ESTILOS (CSS DO APP PRINCIPAL)
 # ============================================================================
@@ -334,6 +446,14 @@ button[kind="secondary"] {{ background: transparent !important; border: 1px soli
 label, .stSelectbox label p, .stTextInput label p, .stNumberInput label p {{ font-weight: 600 !important; color: {ACCENT_2} !important; text-transform: uppercase; letter-spacing: 0.07em; font-size: 0.72rem !important; }}
 input, textarea, select, .stSelectbox div[data-baseweb="select"] > div {{ background-color: {PANEL} !important; color: {TEXT} !important; border-radius: 9px !important; border: 1px solid rgba(180, 112, 124, 0.35) !important; font-weight: 500 !important; }}
 .transaction-item, .account-item, .investment-item {{ padding: 1rem 1.2rem; border-radius: 14px; background: {PANEL_2}; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; border: 1px solid rgba(180, 112, 124, 0.2); }}
+.mini-row {{ display:flex; justify-content:space-between; align-items:center; gap:0.75rem; padding:0.55rem 0.8rem; border-radius:10px; background:{PANEL_2}; border:1px solid rgba(180,112,124,0.18); margin-bottom:0.45rem; }}
+.mini-row .t-meta strong {{ font-size:0.9rem; }}
+.mini-row .t-meta span {{ font-size:0.76rem; }}
+.mini-row .t-amount {{ font-size:0.92rem; }}
+div[data-testid="stTabs"] button[data-baseweb="tab"] {{ font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.15rem; font-weight: 600; color: {MUTED}; }}
+div[data-testid="stTabs"] button[aria-selected="true"] {{ color: {ACCENT} !important; }}
+div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {{ background-color: {GOLD} !important; height: 3px; }}
+div[data-testid="stTabs"] div[data-baseweb="tab-border"] {{ background-color: rgba(180, 112, 124, 0.2) !important; }}
 .t-meta strong {{ display:block; color: {TEXT}; font-size: 1.05rem; font-weight: 600; }}
 .t-meta span {{ color: {MUTED}; font-size: 0.9rem; font-weight: 400; }}
 .t-amount {{ font-weight: 700; font-size: 1.1rem; white-space: nowrap; font-family: 'Cormorant Garamond', serif; }}
@@ -432,282 +552,295 @@ elif st.session_state.princess_reaction == "sad":
     st.session_state.princess_reaction = None
 
 
-# ============================================================================
-# 9. FILTRO DE MÊS E FORMULÁRIO DE NOVA MOVIMENTAÇÃO
-# ============================================================================
+tab_atual, tab_historico = st.tabs(["🗓️ Mês Atual", "📚 Meses Anteriores"])
 
-with st.container(border=True):
-    top_col1, top_col2 = st.columns([3, 1])
-    with top_col1: st.markdown('<div class="panel-title">Nova movimentação ✨</div>', unsafe_allow_html=True)
-    with top_col2:
-        options = month_options()
-        if state["period"] not in options:
-            options.append(state["period"])
-            options.sort()
-        new_period = st.selectbox("Mês de referência", options, index=options.index(state["period"]), format_func=format_month)
-        if new_period != state["period"]:
-            state["period"] = new_period
-            save_state()
-            st.rerun()
+with tab_atual:
+    # ============================================================================
+    # 9. FILTRO DE MÊS E FORMULÁRIO DE NOVA MOVIMENTAÇÃO
+    # ============================================================================
 
-    type_label = st.selectbox("Tipo de Movimentação", ["Gasto", "Ganho"], key="new_type")
-    categories = EXPENSE_CATEGORIES if type_label == "Gasto" else INCOME_CATEGORIES
+    with st.container(border=True):
+        top_col1, top_col2 = st.columns([3, 1])
+        with top_col1: st.markdown('<div class="panel-title">Nova movimentação ✨</div>', unsafe_allow_html=True)
+        with top_col2:
+            st.markdown(
+                f'<div style="text-align:right; padding-top:0.4rem;">'
+                f'<div style="font-size:0.68rem; text-transform:uppercase; letter-spacing:0.08em; color:{MUTED}; font-weight:600;">Mês corrente</div>'
+                f'<div style="font-family:\'Cormorant Garamond\', serif; font-style:italic; font-size:1.3rem; color:{ACCENT}; font-weight:600;">{format_month(state["period"])}</div>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
 
-    with st.form("transaction_form", clear_on_submit=True):
-        c1, c2, c3 = st.columns(3)
-        with c1: category = st.selectbox("Categoria", categories)
-        with c2: account_choice = st.selectbox("Conta", ["Sem conta"] + [a["name"] for a in state["accounts"]])
-        with c3: description = st.text_input("Descrição", placeholder="Ex.: Mercado")
+        type_label = st.selectbox("Tipo de Movimentação", ["Gasto", "Ganho"], key="new_type")
+        categories = EXPENSE_CATEGORIES if type_label == "Gasto" else INCOME_CATEGORIES
 
-        c4, c5 = st.columns(2)
-        with c4: amount = st.number_input("Valor (R$)", min_value=0.0, step=0.01, format="%.2f")
-        with c5: date_value = st.date_input("Data", value=date.today())
+        with st.form("transaction_form", clear_on_submit=True):
+            c1, c2, c3 = st.columns(3)
+            with c1: category = st.selectbox("Categoria", categories)
+            with c2: account_choice = st.selectbox("Conta", ["Sem conta"] + [a["name"] for a in state["accounts"]])
+            with c3: description = st.text_input("Descrição", placeholder="Ex.: Mercado")
 
-        if st.form_submit_button("Adicionar Movimentação 💸"):
-            if not description.strip() or amount <= 0:
-                st.warning("Preencha a descrição e um valor maior que zero.")
-            else:
-                acc = next((a for a in state["accounts"] if a["name"] == account_choice), None) if account_choice != "Sem conta" else None
-                payload = {
-                    "id": str(uuid.uuid4()), "type": "expense" if type_label == "Gasto" else "income",
-                    "category": category, "description": description.strip(), "amount": float(amount),
-                    "date": date_value.isoformat(), "month": state["period"],
-                    "accountId": acc["id"] if acc else None, "accountName": acc["name"] if acc else None,
-                }
-                if acc:
-                    if payload["type"] == "expense": acc["balance"] -= payload["amount"]
-                    else: acc["balance"] += payload["amount"]
+            c4, c5 = st.columns(2)
+            with c4: amount = st.number_input("Valor (R$)", min_value=0.0, step=0.01, format="%.2f")
+            with c5: date_value = st.date_input("Data", value=date.today())
 
-                state["transactions"].insert(0, payload)
-                save_state()
-                
-                if payload["type"] == "income": st.session_state.princess_reaction = "happy"
-                else: st.session_state.princess_reaction = "sad"
-                st.rerun()
-
-
-# ============================================================================
-# 10. CÁLCULOS TOTAIS E MÉTRICAS PRINCIPAIS
-# ============================================================================
-
-current_transactions = [t for t in state["transactions"] if t["month"] == state["period"]]
-income = sum(t["amount"] for t in current_transactions if t["type"] == "income")
-expenses = sum(t["amount"] for t in current_transactions if t["type"] == "expense")
-balance = income - expenses
-accounts_total = sum(a["balance"] for a in state["accounts"])
-invested_principal_total = sum(investment_principal(i) for i in state["investments"])
-invested_current_total = sum(investment_current_value(i) for i in state["investments"])
-investment_gain_total = invested_current_total - invested_principal_total
-net_worth = accounts_total + invested_current_total
-
-st.write("")
-m1, m2, m3, m4, m5 = st.columns(5)
-m1.metric("Ganhos", format_currency(income))
-m2.metric("Gastos", format_currency(expenses))
-m3.metric("Saldo do mês", format_currency(balance))
-m4.metric("Nas contas", format_currency(accounts_total))
-m5.metric("Patrimônio total", format_currency(net_worth))
-st.write("")
-
-
-# ============================================================================
-# 11. HISTÓRICO DE MOVIMENTAÇÕES
-# ============================================================================
-
-with st.container(border=True):
-    h1, h2 = st.columns([4, 1])
-    with h1: st.markdown('<div class="panel-title">Histórico de Movimentações 📋</div>', unsafe_allow_html=True)
-    with h2:
-        if st.button("Limpar dados", type="secondary", use_container_width=True): st.session_state.confirm_clear = True
-
-    if st.session_state.confirm_clear:
-        st.warning("Tem certeza que deseja apagar TODOS os dados?")
-        cc1, cc2 = st.columns(2)
-        with cc1:
-            if st.button("Confirmar exclusão", type="secondary"):
-                st.session_state.state = default_state()
-                state = st.session_state.state; save_state()
-                st.session_state.confirm_clear = False; st.rerun()
-        with cc2:
-            if st.button("Cancelar"): st.session_state.confirm_clear = False; st.rerun()
-
-    if not current_transactions: st.markdown('<div class="empty-state">Nenhuma movimentação neste mês! 🌷</div>', unsafe_allow_html=True)
-    else:
-        for t in current_transactions:
-            meta_line = f'{t["category"]} • {t["date"]}'
-            if t.get("accountName"): meta_line += f' • {t["accountName"]}'
-            sign, cls = ("+", "income") if t["type"] == "income" else ("-", "expense")
-
-            row = st.container()
-            with row:
-                rc1, rc2, rc3 = st.columns([5, 2, 1])
-                with rc1: st.markdown(f'<div class="t-meta"><strong>{t["description"]}</strong><span>{meta_line}</span></div>', unsafe_allow_html=True)
-                with rc2: st.markdown(f'<div class="t-amount {cls}">{sign}{format_currency(t["amount"])}</div>', unsafe_allow_html=True)
-                with rc3:
-                    if st.button("Remover", key=f"rm_{t['id']}"):
-                        if t.get("accountId"):
-                            acc = find_account(t["accountId"])
-                            if acc:
-                                if t["type"] == "expense": acc["balance"] += t["amount"]
-                                else: acc["balance"] -= t["amount"]
-                        state["transactions"] = [x for x in state["transactions"] if x["id"] != t["id"]]
-                        save_state()
-                        st.rerun()
-
-
-# ============================================================================
-# 12. GRÁFICOS VISUAIS E ANÁLISE DE DADOS
-# ============================================================================
-
-with st.container(border=True):
-    st.markdown('<div class="panel-title">Análise Financeira 📊</div>', unsafe_allow_html=True)
-    g1, g2 = st.columns([1.2, 0.8])
-
-    with g1:
-        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Receitas x Despesas</span>**", unsafe_allow_html=True)
-        bar_fig = go.Figure(data=[go.Bar(x=["Ganhos", "Gastos"], y=[income, expenses], marker_color=[SUCCESS_CHART, DANGER_CHART], marker_line=dict(color=TEXT, width=1.5), text=[format_currency(income), format_currency(expenses)], textposition="auto", textfont=dict(color="white", size=16), width=0.4)])
-        bar_fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color=TEXT, family="Poppins", size=14), yaxis=dict(showgrid=True, gridcolor="rgba(0,0,0,0.35)", zeroline=True, zerolinecolor=TEXT, zerolinewidth=2, visible=True, color=TEXT), xaxis=dict(showgrid=False, showline=True, linewidth=2, linecolor=TEXT, color=TEXT, tickfont=dict(size=15, color=TEXT)), margin=dict(l=10, r=10, t=30, b=10), height=320, showlegend=False)
-        st.plotly_chart(bar_fig, use_container_width=True, theme=None)
-       
-    with g2:
-        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Despesas por categoria</span>**", unsafe_allow_html=True)
-        expense_items = [t for t in current_transactions if t["type"] == "expense"]
-        totals_by_cat = {}
-        for t in expense_items: totals_by_cat[t["category"]] = totals_by_cat.get(t["category"], 0) + t["amount"]
-
-        if not totals_by_cat: donut_fig = go.Figure(data=[go.Pie(labels=["Sem dados"], values=[1], hole=0.65, marker=dict(colors=[PANEL_2]), textinfo="none")])
-        else: donut_fig = go.Figure(data=[go.Pie(labels=list(totals_by_cat.keys()), values=list(totals_by_cat.values()), hole=0.65, marker=dict(colors=COLORS * 3, line=dict(color=PANEL, width=3)), textinfo="none")])
-
-        donut_fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color=TEXT, family="Poppins"), margin=dict(l=10, r=10, t=30, b=10), height=320, showlegend=False, annotations=[dict(text=f"Total:<br>{format_currency(sum(totals_by_cat.values()))}" if totals_by_cat else "Sem dados", x=0.5, y=0.5, font_size=16, showarrow=False, font_color=TEXT)])
-        st.plotly_chart(donut_fig, use_container_width=True)
-
-        if totals_by_cat:
-            for idx, (name, value) in enumerate(totals_by_cat.items()):
-                color = COLORS[idx % len(COLORS)]
-                st.markdown(f'<div class="legend-item"><span style="display:flex; align-items:center;"><span class="legend-badge" style="background:{color}; border: 2px solid {TEXT};"></span>{name}</span><strong>{format_currency(value)}</strong></div>', unsafe_allow_html=True)
-
-
-# ============================================================================
-# 13. GESTÃO DE CONTAS BANCÁRIAS
-# ============================================================================
-
-with st.container(border=True):
-    st.markdown('<div class="panel-title">Minhas Contas 💳</div>', unsafe_allow_html=True)
-    with st.form("account_form", clear_on_submit=True):
-        ac1, ac2, ac3, ac4 = st.columns(4)
-        with ac1: acc_choice = st.selectbox("Conta", [a["name"] for a in state["accounts"]])
-        with ac2: operation = st.selectbox("Operação", ["Definir valor", "Adicionar", "Subtrair"])
-        with ac3: acc_amount = st.number_input("Valor", min_value=0.0, step=0.01, format="%.2f", key="acc_amount")
-        with ac4: acc_description = st.text_input("Descrição", placeholder="Ex.: Ajuste manual", key="acc_desc")
-
-        if st.form_submit_button("Atualizar Conta"):
-            acc = next((a for a in state["accounts"] if a["name"] == acc_choice), None)
-            if acc:
-                if operation == "Definir valor": acc["balance"] = float(acc_amount)
-                elif operation == "Adicionar": acc["balance"] += float(acc_amount)
-                else: acc["balance"] -= float(acc_amount)
-
-                if acc_description.strip():
-                    state["transactions"].insert(0, {"id": str(uuid.uuid4()), "type": "expense" if operation == "Subtrair" else "income", "category": "Ajuste", "description": acc_description.strip(), "amount": float(acc_amount), "date": date.today().isoformat(), "month": state["period"], "accountId": acc["id"], "accountName": acc["name"]})
-                save_state(); st.rerun()
-
-    if not state["accounts"]: st.markdown('<div class="empty-state">Nenhuma conta.</div>', unsafe_allow_html=True)
-    else:
-        for a in state["accounts"]:
-            neg = a["balance"] < 0
-            st.markdown(f'<div class="account-item"><div><strong>{a["name"]}</strong><div style="color:{MUTED}; font-size:0.9rem; font-weight: 600;">{"Saldo negativo" if neg else "Saldo disponível"}</div></div><div class="acc-balance {"negative" if neg else ""}">{format_currency(a["balance"])}</div></div>', unsafe_allow_html=True)
-
-
-# ============================================================================
-# 14. GESTÃO DE INVESTIMENTOS AUTOMATIZADA
-# ============================================================================
-
-with st.container(border=True):
-    st.markdown('<div class="panel-title">Meus Investimentos 📈</div>', unsafe_allow_html=True)
-    st.caption("O valor dos fundos é extraído em tempo real de acordo com as cotações oficiais e o Banco Central.")
-
-    iv1, iv2, iv3 = st.columns(3)
-    iv1.metric("Total investido (Seu bolso)", format_currency(invested_principal_total))
-    iv2.metric("Valor atualizado do Patrimônio", format_currency(invested_current_total))
-    iv3.metric("Rendimento acumulado no mercado", format_currency(investment_gain_total))
-
-    st.write("")
-    
-    st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Novo investimento</span>**", unsafe_allow_html=True)
-
-    bb_select = st.selectbox("Selecione o Fundo", BB_INVESTMENT_OPTIONS, key="bb_select")
-
-    with st.form("investment_form", clear_on_submit=True):
-        ic1, ic2, ic3 = st.columns(3)
-        with ic1:
-            if "Outro" in bb_select:
-                inv_name = st.text_input("Nome do investimento", placeholder="Ex.: Ações PETR4")
-            else:
-                inv_name = st.text_input("Nome do investimento", value=bb_select, disabled=True)
-
-        with ic2:
-            inv_amount = st.number_input("Valor investido (R$)", min_value=0.0, step=0.01, format="%.2f", key="inv_amount")
-        
-        with ic3:
-            inv_start = st.date_input("Data do Aporte (Importante para calcular rendimento)", value=date.today(), key="inv_start")
-
-        # Mostra o painel de juros APENAS se a pessoa escolher "Outro"
-        if "Outro" in bb_select:
-            with st.expander("Configurar juros (Apenas para investimentos manuais)"):
-                ix1, ix2 = st.columns(2)
-                with ix1: inv_rate = st.number_input("Taxa de juros (%)", min_value=0.0, step=0.01, value=0.0, format="%.2f", key="inv_rate")
-                with ix2: inv_rate_period = st.selectbox("Período", RATE_PERIODS, key="inv_rate_period")
-        else:
-            inv_rate = 0.0
-            inv_rate_period = "Mensal"
-            st.info("💡 Este fundo será atualizado **automaticamente** pelas cotações reais do mercado e CDI do Banco Central.")
-
-        if st.form_submit_button("Salvar investimento 💰"):
-            nome_final = inv_name.strip() if "Outro" in bb_select else bb_select
-            if not nome_final: 
-                st.warning("Informe um nome para o investimento.")
-            else:
-                state["investments"].append({
-                    "id": str(uuid.uuid4()),
-                    "name": nome_final,
-                    "location": "Banco do Brasil" if "Outro" not in bb_select else "Corretora",
-                    "initial_amount": float(inv_amount),
-                    "rate": float(inv_rate),
-                    "rate_period": inv_rate_period,
-                    "start_date": inv_start.isoformat(),
-                    "contributions": []
-                })
-                save_state(); st.rerun()
-
-    st.write("")
-
-    if not state["investments"]: st.markdown('<div class="empty-state">Nenhum investimento cadastrado.</div>', unsafe_allow_html=True)
-    else:
-        for inv in state["investments"]:
-            current_value = investment_current_value(inv)
-            gain = current_value - investment_principal(inv)
-            gain_cls, gain_sign = ("positive", "+") if gain > 0.005 else ("neutral", "")
-            
-            st.markdown(f'<div class="inv-card"><div class="inv-top"><div><div class="inv-name">{inv["name"]}</div><div class="inv-meta">{inv["location"]} • comprado em {inv["start_date"]}</div><div style="margin-top:0.6rem;"><span class="inv-badge">{rate_label(inv)}</span></div></div><div><div class="inv-value">{format_currency(current_value)}</div><div class="inv-gain {gain_cls}">{gain_sign}{format_currency(gain)} de variação</div></div></div></div>', unsafe_allow_html=True)
-            if st.columns([5, 1])[1].button("Remover", key=f"rm_i_{inv['id']}"):
-                state["investments"] = [x for x in state["investments"] if x["id"] != inv["id"]]; save_state(); st.rerun()
-
-    st.write("")
-    
-    with st.form("invest_more_form", clear_on_submit=True):
-        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Adicionar novo aporte em fundo existente</span>**", unsafe_allow_html=True)
-        if state["investments"]:
-            im1, im2, im3 = st.columns([2, 1, 1])
-            with im1: inv_choice = st.selectbox("Investimento", [f'{i["name"]} — {format_currency(investment_current_value(i))}' for i in state["investments"]])
-            with im2: extra_amount = st.number_input("Valor do aporte", min_value=0.0, step=0.01, format="%.2f", key="extra_amount")
-            with im3: extra_date = st.date_input("Data do aporte", value=date.today(), key="extra_date")
-            
-            if st.form_submit_button("Adicionar aporte 💎"):
-                if extra_amount <= 0: st.warning("Informe um valor maior que zero.")
+            if st.form_submit_button("Adicionar Movimentação 💸"):
+                if not description.strip() or amount <= 0:
+                    st.warning("Preencha a descrição e um valor maior que zero.")
                 else:
-                    idx = [f'{i["name"]} — {format_currency(investment_current_value(i))}' for i in state["investments"]].index(inv_choice)
-                    state["investments"][idx].setdefault("contributions", []).append({"id": str(uuid.uuid4()), "amount": float(extra_amount), "date": extra_date.isoformat()})
-                    save_state(); st.rerun()
+                    acc = next((a for a in state["accounts"] if a["name"] == account_choice), None) if account_choice != "Sem conta" else None
+                    payload = {
+                        "id": str(uuid.uuid4()), "type": "expense" if type_label == "Gasto" else "income",
+                        "category": category, "description": description.strip(), "amount": float(amount),
+                        "date": date_value.isoformat(), "month": state["period"],
+                        "accountId": acc["id"] if acc else None, "accountName": acc["name"] if acc else None,
+                    }
+                    if acc:
+                        if payload["type"] == "expense": acc["balance"] -= payload["amount"]
+                        else: acc["balance"] += payload["amount"]
+
+                    state["transactions"].insert(0, payload)
+                    save_state()
+
+                    if payload["type"] == "income": st.session_state.princess_reaction = "happy"
+                    else: st.session_state.princess_reaction = "sad"
+                    st.rerun()
+
+
+    # ============================================================================
+    # 10. CÁLCULOS TOTAIS E MÉTRICAS PRINCIPAIS
+    # ============================================================================
+
+    current_transactions = [t for t in state["transactions"] if t["month"] == state["period"]]
+    income = sum(t["amount"] for t in current_transactions if t["type"] == "income")
+    expenses = sum(t["amount"] for t in current_transactions if t["type"] == "expense")
+    balance = income - expenses
+    accounts_total = sum(a["balance"] for a in state["accounts"])
+    invested_principal_total = sum(investment_principal(i) for i in state["investments"])
+    invested_current_total = sum(investment_current_value(i) for i in state["investments"])
+    investment_gain_total = invested_current_total - invested_principal_total
+    net_worth = accounts_total + invested_current_total
+
+    st.write("")
+    m1, m2, m3, m4, m5 = st.columns(5)
+    m1.metric("Ganhos", format_currency(income))
+    m2.metric("Gastos", format_currency(expenses))
+    m3.metric("Saldo do mês", format_currency(balance))
+    m4.metric("Nas contas", format_currency(accounts_total))
+    m5.metric("Patrimônio total", format_currency(net_worth))
+    st.write("")
+
+
+    # ============================================================================
+    # 11. HISTÓRICO DE MOVIMENTAÇÕES
+    # ============================================================================
+
+    with st.container(border=True):
+        h1, h2, h3 = st.columns([3.2, 1, 1])
+        with h1: st.markdown('<div class="panel-title">Histórico de Movimentações 📋</div>', unsafe_allow_html=True)
+        with h2:
+            st.download_button(
+                "Exportar Excel ⬇️",
+                data=build_excel_bytes(current_transactions),
+                file_name=f"movimentacoes_{state['period']}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True,
+                disabled=not current_transactions,
+            )
+        with h3:
+            if st.button("Limpar dados", type="secondary", use_container_width=True): st.session_state.confirm_clear = True
+
+        if st.session_state.confirm_clear:
+            st.warning("Tem certeza que deseja apagar TODOS os dados?")
+            cc1, cc2 = st.columns(2)
+            with cc1:
+                if st.button("Confirmar exclusão", type="secondary"):
+                    st.session_state.state = default_state()
+                    state = st.session_state.state; save_state()
+                    st.session_state.confirm_clear = False; st.rerun()
+            with cc2:
+                if st.button("Cancelar"): st.session_state.confirm_clear = False; st.rerun()
+
+        if not current_transactions:
+            st.markdown('<div class="empty-state">Nenhuma movimentação neste mês! 🌷</div>', unsafe_allow_html=True)
         else:
-            st.caption("Cadastre um investimento primeiro.")
-            st.form_submit_button("Adicionar aporte", disabled=True)
+            render_split_history(current_transactions, key_prefix="cur", allow_remove=True)
+
+
+    # ============================================================================
+    # 12. GRÁFICOS VISUAIS E ANÁLISE DE DADOS
+    # ============================================================================
+
+    with st.container(border=True):
+        st.markdown('<div class="panel-title">Análise Financeira 📊</div>', unsafe_allow_html=True)
+        render_charts(current_transactions, key_prefix="current")
+
+
+    # ============================================================================
+    # 13. GESTÃO DE CONTAS BANCÁRIAS
+    # ============================================================================
+
+    with st.container(border=True):
+        st.markdown('<div class="panel-title">Minhas Contas 💳</div>', unsafe_allow_html=True)
+        with st.form("account_form", clear_on_submit=True):
+            ac1, ac2, ac3, ac4 = st.columns(4)
+            with ac1: acc_choice = st.selectbox("Conta", [a["name"] for a in state["accounts"]])
+            with ac2: operation = st.selectbox("Operação", ["Definir valor", "Adicionar", "Subtrair"])
+            with ac3: acc_amount = st.number_input("Valor", min_value=0.0, step=0.01, format="%.2f", key="acc_amount")
+            with ac4: acc_description = st.text_input("Descrição", placeholder="Ex.: Ajuste manual", key="acc_desc")
+
+            if st.form_submit_button("Atualizar Conta"):
+                acc = next((a for a in state["accounts"] if a["name"] == acc_choice), None)
+                if acc:
+                    if operation == "Definir valor": acc["balance"] = float(acc_amount)
+                    elif operation == "Adicionar": acc["balance"] += float(acc_amount)
+                    else: acc["balance"] -= float(acc_amount)
+
+                    if acc_description.strip():
+                        state["transactions"].insert(0, {"id": str(uuid.uuid4()), "type": "expense" if operation == "Subtrair" else "income", "category": "Ajuste", "description": acc_description.strip(), "amount": float(acc_amount), "date": date.today().isoformat(), "month": state["period"], "accountId": acc["id"], "accountName": acc["name"]})
+                    save_state(); st.rerun()
+
+        if not state["accounts"]: st.markdown('<div class="empty-state">Nenhuma conta.</div>', unsafe_allow_html=True)
+        else:
+            for a in state["accounts"]:
+                neg = a["balance"] < 0
+                st.markdown(f'<div class="account-item"><div><strong>{a["name"]}</strong><div style="color:{MUTED}; font-size:0.9rem; font-weight: 600;">{"Saldo negativo" if neg else "Saldo disponível"}</div></div><div class="acc-balance {"negative" if neg else ""}">{format_currency(a["balance"])}</div></div>', unsafe_allow_html=True)
+
+
+    # ============================================================================
+    # 14. GESTÃO DE INVESTIMENTOS AUTOMATIZADA
+    # ============================================================================
+
+    with st.container(border=True):
+        st.markdown('<div class="panel-title">Meus Investimentos 📈</div>', unsafe_allow_html=True)
+        st.caption("O valor dos fundos é extraído em tempo real de acordo com as cotações oficiais e o Banco Central.")
+
+        iv1, iv2, iv3 = st.columns(3)
+        iv1.metric("Total investido (Seu bolso)", format_currency(invested_principal_total))
+        iv2.metric("Valor atualizado do Patrimônio", format_currency(invested_current_total))
+        iv3.metric("Rendimento acumulado no mercado", format_currency(investment_gain_total))
+
+        st.write("")
+
+        st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Novo investimento</span>**", unsafe_allow_html=True)
+
+        bb_select = st.selectbox("Selecione o Fundo", BB_INVESTMENT_OPTIONS, key="bb_select")
+
+        with st.form("investment_form", clear_on_submit=True):
+            ic1, ic2, ic3 = st.columns(3)
+            with ic1:
+                if "Outro" in bb_select:
+                    inv_name = st.text_input("Nome do investimento", placeholder="Ex.: Ações PETR4")
+                else:
+                    inv_name = st.text_input("Nome do investimento", value=bb_select, disabled=True)
+
+            with ic2:
+                inv_amount = st.number_input("Valor investido (R$)", min_value=0.0, step=0.01, format="%.2f", key="inv_amount")
+
+            with ic3:
+                inv_start = st.date_input("Data do Aporte (Importante para calcular rendimento)", value=date.today(), key="inv_start")
+
+            # Mostra o painel de juros APENAS se a pessoa escolher "Outro"
+            if "Outro" in bb_select:
+                with st.expander("Configurar juros (Apenas para investimentos manuais)"):
+                    ix1, ix2 = st.columns(2)
+                    with ix1: inv_rate = st.number_input("Taxa de juros (%)", min_value=0.0, step=0.01, value=0.0, format="%.2f", key="inv_rate")
+                    with ix2: inv_rate_period = st.selectbox("Período", RATE_PERIODS, key="inv_rate_period")
+            else:
+                inv_rate = 0.0
+                inv_rate_period = "Mensal"
+                st.info("💡 Este fundo será atualizado **automaticamente** pelas cotações reais do mercado e CDI do Banco Central.")
+
+            if st.form_submit_button("Salvar investimento 💰"):
+                nome_final = inv_name.strip() if "Outro" in bb_select else bb_select
+                if not nome_final: 
+                    st.warning("Informe um nome para o investimento.")
+                else:
+                    state["investments"].append({
+                        "id": str(uuid.uuid4()),
+                        "name": nome_final,
+                        "location": "Banco do Brasil" if "Outro" not in bb_select else "Corretora",
+                        "initial_amount": float(inv_amount),
+                        "rate": float(inv_rate),
+                        "rate_period": inv_rate_period,
+                        "start_date": inv_start.isoformat(),
+                        "contributions": []
+                    })
+                    save_state(); st.rerun()
+
+        st.write("")
+
+        if not state["investments"]: st.markdown('<div class="empty-state">Nenhum investimento cadastrado.</div>', unsafe_allow_html=True)
+        else:
+            for inv in state["investments"]:
+                current_value = investment_current_value(inv)
+                gain = current_value - investment_principal(inv)
+                gain_cls, gain_sign = ("positive", "+") if gain > 0.005 else ("neutral", "")
+
+                st.markdown(f'<div class="inv-card"><div class="inv-top"><div><div class="inv-name">{inv["name"]}</div><div class="inv-meta">{inv["location"]} • comprado em {inv["start_date"]}</div><div style="margin-top:0.6rem;"><span class="inv-badge">{rate_label(inv)}</span></div></div><div><div class="inv-value">{format_currency(current_value)}</div><div class="inv-gain {gain_cls}">{gain_sign}{format_currency(gain)} de variação</div></div></div></div>', unsafe_allow_html=True)
+                if st.columns([5, 1])[1].button("Remover", key=f"rm_i_{inv['id']}"):
+                    state["investments"] = [x for x in state["investments"] if x["id"] != inv["id"]]; save_state(); st.rerun()
+
+        st.write("")
+
+        with st.form("invest_more_form", clear_on_submit=True):
+            st.markdown(f"**<span style='color:{TEXT}; font-size:1.1rem;'>Adicionar novo aporte em fundo existente</span>**", unsafe_allow_html=True)
+            if state["investments"]:
+                im1, im2, im3 = st.columns([2, 1, 1])
+                with im1: inv_choice = st.selectbox("Investimento", [f'{i["name"]} — {format_currency(investment_current_value(i))}' for i in state["investments"]])
+                with im2: extra_amount = st.number_input("Valor do aporte", min_value=0.0, step=0.01, format="%.2f", key="extra_amount")
+                with im3: extra_date = st.date_input("Data do aporte", value=date.today(), key="extra_date")
+
+                if st.form_submit_button("Adicionar aporte 💎"):
+                    if extra_amount <= 0: st.warning("Informe um valor maior que zero.")
+                    else:
+                        idx = [f'{i["name"]} — {format_currency(investment_current_value(i))}' for i in state["investments"]].index(inv_choice)
+                        state["investments"][idx].setdefault("contributions", []).append({"id": str(uuid.uuid4()), "amount": float(extra_amount), "date": extra_date.isoformat()})
+                        save_state(); st.rerun()
+            else:
+                st.caption("Cadastre um investimento primeiro.")
+                st.form_submit_button("Adicionar aporte", disabled=True)
+
+
+with tab_historico:
+    all_months = sorted({t["month"] for t in state["transactions"]}, reverse=True)
+    past_months = [m for m in all_months if m != state["period"]]
+
+    with st.container(border=True):
+        st.markdown('<div class="panel-title">Meses Anteriores 📚</div>', unsafe_allow_html=True)
+
+        if not past_months:
+            st.markdown('<div class="empty-state">Ainda não há meses anteriores registrados. Assim que um mês virar, ele aparecerá aqui automaticamente. 🌷</div>', unsafe_allow_html=True)
+        else:
+            selected_month = st.selectbox("Selecione o mês", past_months, format_func=format_month, key="historico_month")
+            month_transactions = [t for t in state["transactions"] if t["month"] == selected_month]
+            month_income = sum(t["amount"] for t in month_transactions if t["type"] == "income")
+            month_expenses = sum(t["amount"] for t in month_transactions if t["type"] == "expense")
+            month_balance = month_income - month_expenses
+
+            st.write("")
+            hm1, hm2, hm3, hm4 = st.columns([1, 1, 1, 1])
+            hm1.metric("Ganhos", format_currency(month_income))
+            hm2.metric("Gastos", format_currency(month_expenses))
+            hm3.metric("Saldo do mês", format_currency(month_balance))
+            with hm4:
+                st.write("")
+                st.download_button(
+                    "Exportar Excel ⬇️",
+                    data=build_excel_bytes(month_transactions),
+                    file_name=f"movimentacoes_{selected_month}.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True,
+                    disabled=not month_transactions,
+                )
+            st.write("")
+
+            st.markdown(f'<div style="font-family:\'Cormorant Garamond\', serif; font-style:italic; font-size:1.3rem; color:{ACCENT}; margin-bottom:0.6rem;">Movimentações de {format_month(selected_month)}</div>', unsafe_allow_html=True)
+            if not month_transactions:
+                st.markdown('<div class="empty-state">Nenhuma movimentação nesse mês.</div>', unsafe_allow_html=True)
+            else:
+                render_split_history(month_transactions, key_prefix=f"hist_{selected_month}", allow_remove=False)
+
+            st.write("")
+            st.markdown(f'<div style="font-family:\'Cormorant Garamond\', serif; font-style:italic; font-size:1.3rem; color:{ACCENT}; margin-bottom:0.6rem;">Gráficos de {format_month(selected_month)}</div>', unsafe_allow_html=True)
+            render_charts(month_transactions, key_prefix=f"hist_{selected_month}")

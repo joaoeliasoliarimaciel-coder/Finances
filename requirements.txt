@@ -3,3 +3,4 @@ plotly
 yfinance 
 requests
 starlette<0.48
+openpyxl

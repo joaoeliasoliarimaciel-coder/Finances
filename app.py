@@ -44,24 +44,31 @@ DEFAULT_ACCOUNTS = [
 
 RATE_PERIODS = ["Mensal", "Anual"]
 
-COLORS = ["#CC79A7", "#0072B2", "#E69F00", "#009E73", "#56B4E9", "#D55E00", "#F0E442"]
+COLORS = ["#B4707C", "#5C2338", "#C6A15B", "#5C7A60", "#8AA1B1", "#9C6B78", "#C08552"]
 
-SUCCESS_CHART = "#009E73"  
-DANGER_CHART = "#D55E00"   
+SUCCESS_CHART = "#5C7A60"
+DANGER_CHART = "#A3454B"
 
-ACCENT = "#ff1493"        
-ACCENT_2 = "#d500f9"      
-DANGER = "#b71c1c"        
-WARNING = "#e65100"       
-SUCCESS = "#0a7040"       
-MUTED = "#5c3a58"         
-TEXT = "#1f0a1c"          
-PANEL = "#ffffff"         
-PANEL_2 = "#fff0f6"       
-BG_1 = "#ffe4e1"          
-BG_2 = "#ffb6c1"          
+ACCENT = "#5c2338"        # vinho profundo
+ACCENT_2 = "#8a4a58"      # rosé profundo
+GOLD = "#c6a15b"          # dourado champanhe
+ROSE = "#b4707c"          # rosé empoeirado
+DANGER = "#a3454b"
+WARNING = "#b8863b"
+SUCCESS = "#5c7a60"
+MUTED = "#8a6d72"
+TEXT = "#35222b"
+PANEL = "#fffdfb"
+PANEL_2 = "#f7e9e2"
+BG_1 = "#faf3ee"
+BG_2 = "#f4e2da"
 
-BG_PATTERN = "url(\"data:image/svg+xml,%3Csvg width='160' height='160' viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='20' y='40' font-size='24' opacity='0.35'%3E🌸%3C/text%3E%3Ctext x='100' y='40' font-size='24' opacity='0.35'%3E👑%3C/text%3E%3Ctext x='20' y='120' font-size='24' opacity='0.35'%3E⭐%3C/text%3E%3Ctext x='100' y='120' font-size='24' opacity='0.35'%3E🎀%3C/text%3E%3C/svg%3E\")"
+BG_PATTERN = (
+    "radial-gradient(circle at 8% -6%, rgba(198, 161, 91, 0.16), transparent 42%), "
+    "radial-gradient(circle at 96% 4%, rgba(180, 112, 124, 0.16), transparent 40%), "
+    "radial-gradient(circle at 50% 115%, rgba(92, 35, 56, 0.1), transparent 45%), "
+    "repeating-linear-gradient(115deg, rgba(92, 35, 56, 0.025) 0px, rgba(92, 35, 56, 0.025) 1px, transparent 1px, transparent 68px)"
+)
 
 st.set_page_config(page_title="Nossas Finanças", page_icon="🎀", layout="wide")
 
@@ -111,20 +118,20 @@ def username_taken(username: str, registered_users: dict) -> bool:
 def login_css():
     css = textwrap.dedent(f"""\
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Poppins:wght@400;500;600;700&display=swap');
-    html, body, [class*="css"] {{ font-family: 'Poppins', sans-serif; }}
-    .stApp {{ background-color: {BG_1}; background-image: {BG_PATTERN}, radial-gradient(circle at 15% 10%, {BG_2}, transparent 55%), radial-gradient(circle at 85% 90%, #ffcbe0, transparent 55%); }}
-    .login-wrap {{ max-width: 440px; margin: 6vh auto 1.2rem auto; padding: 2.4rem 2.2rem 1.4rem 2.2rem; background: {PANEL}; border-radius: 28px; box-shadow: 0 25px 60px rgba(255, 20, 147, 0.25); border: 2px solid {ACCENT}; text-align: center; }}
-    .login-wrap .icon {{ font-size: 3rem; margin-bottom: 0.2rem; }}
-    .login-wrap h1 {{ font-family: 'Playfair Display', serif; color: {ACCENT}; font-size: 2.4rem; font-weight: 700; margin: 0; }}
-    .login-wrap p {{ color: {TEXT}; font-size: 1rem; font-weight: 600; }}
-    div[data-testid="stForm"] {{ max-width: 440px; margin: 0 auto; border: none !important; background: pink !important; padding: 0 !important; }}
-    label, .stTextInput label p {{ color: {TEXT} !important; font-weight: 700 !important; }}
-    input {{ background-color: {PANEL_2} !important; color: {TEXT} !important; border-radius: 12px !important; border: 2px solid rgba(255, 20, 147, 0.4) !important; }}
-    .stButton>button, .stFormSubmitButton>button {{ border: 0; border-radius: 12px; font-weight: 700; background: linear-gradient(135deg, {ACCENT}, {ACCENT_2}); color: #ffffff !important; width: 100%; padding: 0.75rem 1.1rem; }}
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Jost:wght@300;400;500;600;700&display=swap');
+    html, body, [class*="css"] {{ font-family: 'Jost', sans-serif; }}
+    .stApp {{ background-color: {BG_1}; background-image: {BG_PATTERN}; }}
+    .login-wrap {{ max-width: 440px; margin: 6vh auto 1.2rem auto; padding: 2.6rem 2.2rem 1.4rem 2.2rem; background: {PANEL}; border-radius: 24px; box-shadow: 0 25px 60px rgba(92, 35, 56, 0.22); border: 1px solid rgba(198, 161, 91, 0.5); text-align: center; }}
+    .login-wrap .icon {{ font-size: 2.6rem; margin-bottom: 0.2rem; }}
+    .login-wrap h1 {{ font-family: 'Cormorant Garamond', serif; font-style: italic; color: {ACCENT}; font-size: 2.4rem; font-weight: 600; margin: 0; }}
+    .login-wrap p {{ color: {MUTED}; font-size: 0.98rem; font-weight: 500; }}
+    div[data-testid="stForm"] {{ max-width: 440px; margin: 0 auto; border: none !important; background: {PANEL_2} !important; padding: 0 !important; }}
+    label, .stTextInput label p {{ color: {ACCENT_2} !important; font-weight: 600 !important; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.72rem !important; }}
+    input {{ background-color: {PANEL} !important; color: {TEXT} !important; border-radius: 9px !important; border: 1px solid rgba(180, 112, 124, 0.35) !important; }}
+    .stButton>button, .stFormSubmitButton>button {{ border: 1px solid {ACCENT}; border-radius: 9px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.85rem; background: linear-gradient(135deg, {ACCENT}, {ACCENT_2}); color: #fbeee2 !important; width: 100%; padding: 0.75rem 1.1rem; }}
     div[data-testid="stTabs"] {{ max-width: 440px; margin: 0 auto; }}
     div[data-testid="stTabs"] button[aria-selected="true"] {{ color: {ACCENT} !important; }}
-    div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {{ background-color: {ACCENT} !important; height: 4px; }}
+    div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {{ background-color: {GOLD} !important; height: 3px; }}
     </style>
     """)
     st.markdown(css, unsafe_allow_html=True)
@@ -304,57 +311,57 @@ def rate_label(inv) -> str:
 
 main_css = textwrap.dedent(f"""\
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Poppins:wght@400;500;600;700;800&display=swap');
-html, body, [class*="css"] {{ font-family: 'Poppins', sans-serif; }}
-.stApp {{ background-color: {BG_1}; background-image: {BG_PATTERN}, radial-gradient(circle at 10% 0%, {BG_2}, transparent 10%), radial-gradient(circle at 90% 100%, #ffcbe0, transparent 10%); color: {TEXT}; }}
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Jost:wght@300;400;500;600;700&display=swap');
+html, body, [class*="css"] {{ font-family: 'Jost', sans-serif; }}
+.stApp {{ background-color: {BG_1}; background-image: {BG_PATTERN}; color: {TEXT}; }}
 .block-container {{ max-width: 1200px; padding-top: 1.5rem; }}
-.hero {{ padding: 2.5rem 2.2rem; border-radius: 26px; background: linear-gradient(120deg, rgba(255,255,255,0.95), rgba(255,240,246,0.95)); border: 2px solid {ACCENT}; margin-bottom: 2rem; box-shadow: 0 18px 45px rgba(255, 20, 147, 0.2); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; backdrop-filter: blur(5px); }}
-.hero .eyebrow {{ margin: 0; text-transform: uppercase; letter-spacing: 0.25rem; color: {ACCENT}; font-weight: 800; font-size: 0.85rem; }}
-.hero h1 {{ font-family: 'Playfair Display', serif; margin: 0.15rem 0; font-size: 2.8rem; color: {TEXT}; font-weight: 700; }}
-.hero p.subtitle {{ color: {TEXT}; max-width: 620px; margin: 0; font-weight: 500; font-size: 1.05rem; }}
-.hero .hero-icon {{ font-size: 4rem; text-shadow: 2px 2px 15px rgba(255,20,147,0.3); }}
-.panel-title {{ font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: {TEXT}; margin-bottom: 1rem; border-bottom: 2px solid rgba(255,20,147,0.2); padding-bottom: 0.5rem; }}
-div[data-testid="stVerticalBlockBorderWrapper"] {{ background: rgba(255,255,255,0.9); border: 2px solid rgba(255, 20, 147, 0.3) !important; border-radius: 22px !important; box-shadow: 0 12px 30px rgba(255, 20, 147, 0.12); padding: 0.5rem; backdrop-filter: blur(5px); }}
-div[data-testid="stForm"] {{ background: #ffb6c1 !important; backdrop-filter: none !important; border: 2px solid {ACCENT} !important; border-radius: 18px !important; padding: 1.2rem 1.4rem !important; box-shadow: 0 8px 20px rgba(255, 20, 147, 0.15); }}
-div[data-testid="stForm"] label, div[data-testid="stForm"] .stSelectbox label p, div[data-testid="stForm"] .stTextInput label p, div[data-testid="stForm"] .stNumberInput label p, div[data-testid="stForm"] .stDateInput label p {{ color: #4a0e2e !important; font-weight: 800 !important; }}
-div[data-testid="stForm"] input, div[data-testid="stForm"] textarea, div[data-testid="stForm"] select, div[data-testid="stForm"] .stSelectbox div[data-baseweb="select"] > div {{ background-color: #ffffff !important; color: #1f0a1c !important; font-weight: 700 !important; }}
-div[data-testid="stMetric"] {{ background: {PANEL_2}; border-radius: 16px; padding: 1rem; border: 2px solid rgba(255, 20, 147, 0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }}
-div[data-testid="stMetricLabel"] {{ color: {TEXT}; font-weight: 700; font-size: 1rem; }}
-div[data-testid="stMetricValue"] {{ color: {TEXT}; font-weight: 800; font-size: 1.6rem; }}
-.stButton>button, .stFormSubmitButton>button {{ border: 0; border-radius: 12px; font-weight: 700; background: linear-gradient(135deg, {ACCENT}, {ACCENT_2}); color: white; padding: 0.65rem 1.2rem; font-size: 1.05rem; }}
-.stButton>button:hover, .stFormSubmitButton>button:hover {{ color: white; transform: translateY(-2px); transition: all 0.2s ease; }}
-button[kind="secondary"] {{ background: {PANEL_2} !important; border: 2px solid {ACCENT} !important; color: {TEXT} !important; }}
-label, .stSelectbox label p, .stTextInput label p, .stNumberInput label p {{ font-weight: 700 !important; color: {TEXT} !important; }}
-input, textarea, select, .stSelectbox div[data-baseweb="select"] > div {{ background-color: {PANEL_2} !important; color: {TEXT} !important; border-radius: 12px !important; border: 2px solid rgba(255,20,147,0.3) !important; font-weight: 600 !important; }}
-.transaction-item, .account-item, .investment-item {{ padding: 1rem 1.2rem; border-radius: 16px; background: {PANEL_2}; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; border: 2px solid rgba(255,20,147,0.2); }}
-.t-meta strong {{ display:block; color: {TEXT}; font-size: 1.1rem; }}
-.t-meta span {{ color: {MUTED}; font-size: 0.95rem; font-weight: 600; }}
-.t-amount {{ font-weight: 800; font-size: 1.15rem; white-space: nowrap; }}
+.hero {{ padding: 2.8rem 2.6rem; border-radius: 22px; background: linear-gradient(150deg, rgba(255,253,251,0.7), rgba(255,253,251,0.35)), linear-gradient(135deg, {ACCENT}, {ACCENT_2} 55%, {ROSE}); border: 1px solid rgba(198, 161, 91, 0.5); margin-bottom: 2rem; box-shadow: 0 18px 45px -12px rgba(92, 35, 56, 0.35); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }}
+.hero .eyebrow {{ margin: 0 0 0.5rem; text-transform: uppercase; letter-spacing: 0.3rem; color: {GOLD}; font-weight: 600; font-size: 0.8rem; }}
+.hero h1 {{ font-family: 'Cormorant Garamond', serif; font-style: italic; margin: 0.1rem 0; font-size: 3rem; color: #fffaf5; font-weight: 600; }}
+.hero p.subtitle {{ color: rgba(255,250,245,0.85); max-width: 620px; margin: 0; font-weight: 300; font-size: 1.02rem; line-height: 1.6; }}
+.hero .hero-icon {{ font-size: 3.6rem; filter: drop-shadow(0 4px 14px rgba(0,0,0,0.25)); }}
+.panel-title {{ font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.65rem; font-weight: 600; color: {ACCENT}; margin-bottom: 1rem; border-bottom: 1px solid rgba(180, 112, 124, 0.25); padding-bottom: 0.6rem; }}
+div[data-testid="stVerticalBlockBorderWrapper"] {{ background: {PANEL} !important; border: 1px solid rgba(180, 112, 124, 0.22) !important; border-left: 4px solid {GOLD} !important; border-radius: 20px !important; box-shadow: 0 14px 30px -18px rgba(92, 35, 56, 0.35); padding: 0.5rem; }}
+div[data-testid="stForm"] {{ background: {PANEL_2} !important; backdrop-filter: none !important; border: 1px solid rgba(198, 161, 91, 0.45) !important; border-radius: 16px !important; padding: 1.2rem 1.4rem !important; box-shadow: none; }}
+div[data-testid="stForm"] label, div[data-testid="stForm"] .stSelectbox label p, div[data-testid="stForm"] .stTextInput label p, div[data-testid="stForm"] .stNumberInput label p, div[data-testid="stForm"] .stDateInput label p {{ color: {ACCENT_2} !important; font-weight: 600 !important; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.72rem !important; }}
+div[data-testid="stForm"] input, div[data-testid="stForm"] textarea, div[data-testid="stForm"] select, div[data-testid="stForm"] .stSelectbox div[data-baseweb="select"] > div {{ background-color: {PANEL} !important; color: {TEXT} !important; font-weight: 500 !important; border-radius: 9px !important; border: 1px solid rgba(180, 112, 124, 0.35) !important; }}
+div[data-testid="stMetric"] {{ background: {PANEL_2}; border-radius: 16px; padding: 1rem; border: 1px solid rgba(180, 112, 124, 0.22); border-left: 3px solid {GOLD}; box-shadow: 0 4px 10px rgba(0,0,0,0.04); }}
+div[data-testid="stMetricLabel"] {{ color: {MUTED}; font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }}
+div[data-testid="stMetricValue"] {{ color: {ACCENT}; font-weight: 700; font-size: 1.6rem; font-family: 'Cormorant Garamond', serif; }}
+.stButton>button, .stFormSubmitButton>button {{ border: 1px solid {ACCENT}; border-radius: 9px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; font-size: 0.9rem; background: linear-gradient(135deg, {ACCENT}, {ACCENT_2}); color: #fbeee2; padding: 0.6rem 1.2rem; }}
+.stButton>button:hover, .stFormSubmitButton>button:hover {{ color: #fbeee2; transform: translateY(-1px); box-shadow: 0 14px 26px -14px rgba(92, 35, 56, 0.45); transition: all 0.2s ease; }}
+button[kind="secondary"] {{ background: transparent !important; border: 1px solid {ROSE} !important; color: {ACCENT_2} !important; }}
+label, .stSelectbox label p, .stTextInput label p, .stNumberInput label p {{ font-weight: 600 !important; color: {ACCENT_2} !important; text-transform: uppercase; letter-spacing: 0.07em; font-size: 0.72rem !important; }}
+input, textarea, select, .stSelectbox div[data-baseweb="select"] > div {{ background-color: {PANEL} !important; color: {TEXT} !important; border-radius: 9px !important; border: 1px solid rgba(180, 112, 124, 0.35) !important; font-weight: 500 !important; }}
+.transaction-item, .account-item, .investment-item {{ padding: 1rem 1.2rem; border-radius: 14px; background: {PANEL_2}; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; border: 1px solid rgba(180, 112, 124, 0.2); }}
+.t-meta strong {{ display:block; color: {TEXT}; font-size: 1.05rem; font-weight: 600; }}
+.t-meta span {{ color: {MUTED}; font-size: 0.9rem; font-weight: 400; }}
+.t-amount {{ font-weight: 700; font-size: 1.1rem; white-space: nowrap; font-family: 'Cormorant Garamond', serif; }}
 .t-amount.income {{ color: {SUCCESS}; }}
 .t-amount.expense {{ color: {DANGER}; }}
-.acc-balance {{ font-weight: 800; font-size: 1.2rem; color: {SUCCESS}; }}
+.acc-balance {{ font-weight: 700; font-size: 1.2rem; color: {SUCCESS}; font-family: 'Cormorant Garamond', serif; }}
 .acc-balance.negative {{ color: {DANGER}; }}
-.empty-state {{ padding: 1.5rem; border-radius: 16px; background: {PANEL_2}; color: {TEXT}; text-align: center; font-weight: 600; border: 2px dashed rgba(255,20,147,0.4); }}
-.legend-item {{ display:flex; justify-content: space-between; color: {TEXT}; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.05rem; }}
-.legend-badge {{ width: 14px; height: 14px; border-radius: 4px; display:inline-block; margin-right: 0.6rem; border: 1px solid rgba(0,0,0,0.1); }}
-.inv-card {{ padding: 1.2rem 1.4rem; border-radius: 20px; background: {PANEL_2}; border: 2px solid rgba(255,20,147,0.25); margin-bottom: 1rem; }}
+.empty-state {{ padding: 1.5rem; border-radius: 14px; background: {PANEL_2}; color: {MUTED}; text-align: center; font-weight: 500; font-style: italic; font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; border: 1px dashed rgba(198, 161, 91, 0.5); }}
+.legend-item {{ display:flex; justify-content: space-between; color: {TEXT}; margin-bottom: 0.5rem; font-weight: 500; font-size: 1rem; }}
+.legend-badge {{ width: 12px; height: 12px; border-radius: 3px; display:inline-block; margin-right: 0.6rem; transform: rotate(45deg); }}
+.inv-card {{ padding: 1.2rem 1.4rem; border-radius: 18px; background: {PANEL_2}; border: 1px solid rgba(180, 112, 124, 0.25); margin-bottom: 1rem; }}
 .inv-card .inv-top {{ display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }}
-.inv-card .inv-name {{ font-weight: 800; color: {TEXT}; font-size: 1.2rem; }}
-.inv-card .inv-meta {{ color: {MUTED}; font-size: 0.95rem; font-weight: 600; margin-top: 0.2rem; }}
-.inv-badge {{ display:inline-block; padding: 0.25rem 0.7rem; border-radius: 999px; background: {ACCENT}; color: white; font-size: 0.85rem; font-weight: 700; }}
-.inv-value {{ font-size: 1.4rem; font-weight: 800; color: {TEXT}; text-align: right; }}
-.inv-gain {{ font-size: 0.95rem; font-weight: 700; text-align: right; margin-top: 0.2rem; }}
+.inv-card .inv-name {{ font-weight: 700; color: {TEXT}; font-size: 1.15rem; }}
+.inv-card .inv-meta {{ color: {MUTED}; font-size: 0.9rem; font-weight: 400; margin-top: 0.2rem; }}
+.inv-badge {{ display:inline-block; padding: 0.25rem 0.7rem; border-radius: 999px; background: {GOLD}; color: {ACCENT}; font-size: 0.78rem; font-weight: 700; }}
+.inv-value {{ font-size: 1.35rem; font-weight: 700; color: {ACCENT}; text-align: right; font-family: 'Cormorant Garamond', serif; }}
+.inv-gain {{ font-size: 0.9rem; font-weight: 600; text-align: right; margin-top: 0.2rem; }}
 .inv-gain.positive {{ color: {SUCCESS}; }}
 .inv-gain.neutral {{ color: {MUTED}; }}
-section[data-testid="stSidebar"] {{ background: rgba(255, 240, 246, 0.95); border-right: 2px solid rgba(255,20,147,0.2); backdrop-filter: blur(5px); }}
+section[data-testid="stSidebar"] {{ background: {PANEL_2}; border-right: 1px solid rgba(180, 112, 124, 0.25); }}
 .happy-princess, .sad-princess {{ position: fixed; z-index: 999999 !important; pointer-events: none; }}
-.happy-princess img, .sad-princess img {{ display: block; width: 160px; height: auto; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.25)); }}
-.happy-princess {{ bottom: 20px; left: -300px; animation: runAcross 4.5s linear forwards; }}
+.happy-princess img, .sad-princess img {{ display: block; width: 150px; height: auto; filter: drop-shadow(0 10px 20px rgba(92,35,56,0.35)) drop-shadow(0 0 18px rgba(198,161,91,0.35)); }}
+.happy-princess {{ bottom: 20px; left: -300px; animation: runAcross 4.5s cubic-bezier(0.33,0,0.2,1) forwards; }}
 .sad-princess {{ bottom: -350px; right: 8%; animation: riseAndCry 5.5s ease-in-out forwards; }}
-@keyframes runAcross {{ 0% {{ left: -300px; }} 100% {{ left: 120%; visibility: hidden; }} }}
+@keyframes runAcross {{ 0% {{ left: -300px; opacity: 0; }} 10% {{ opacity: 1; }} 100% {{ left: 120%; opacity: 1; visibility: hidden; }} }}
 @keyframes riseAndCry {{ 0% {{ bottom: -350px; opacity: 0; }} 20% {{ bottom: 0px; opacity: 1; }} 80% {{ bottom: 0px; opacity: 1; }} 100% {{ bottom: -350px; opacity: 0; visibility: hidden; }} }}
-.princess-bounce {{ animation: princessBounce 0.6s infinite alternate ease-in-out; }}
-@keyframes princessBounce {{ from {{ transform: translateY(-8px); }} to {{ transform: translateY(8px); }} }}
+.princess-bounce {{ animation: princessBounce 1.4s infinite alternate ease-in-out; }}
+@keyframes princessBounce {{ from {{ transform: translateY(-6px); }} to {{ transform: translateY(6px); }} }}
 </style>
 """)
 st.markdown(main_css, unsafe_allow_html=True)
@@ -367,9 +374,9 @@ st.markdown(main_css, unsafe_allow_html=True)
 with st.sidebar:
     sidebar_html = textwrap.dedent(f"""\
     <div style="text-align:center; padding: 1rem 0 1.5rem 0;">
-        <div style="font-size:3.5rem;">👑</div>
-        <div style="font-family:'Playfair Display', serif; font-weight:700; font-size:1.6rem; color:{ACCENT};">Nossas Finanças</div>
-        <div style="color:{TEXT}; font-size:1rem; font-weight: 600;">Olá, {st.session_state.get('username', '')}!</div>
+        <div style="font-size:3rem;">👑</div>
+        <div style="font-family:'Cormorant Garamond', serif; font-style: italic; font-weight:600; font-size:1.6rem; color:{ACCENT};">Nossas Finanças</div>
+        <div style="color:{MUTED}; font-size:0.95rem; font-weight: 500;">Olá, {st.session_state.get('username', '')}!</div>
     </div>
     """)
     st.markdown(sidebar_html, unsafe_allow_html=True)

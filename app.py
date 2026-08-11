@@ -46,29 +46,30 @@ DEFAULT_ACCOUNTS = [
 
 RATE_PERIODS = ["Mensal", "Anual"]
 
-COLORS = ["#E0218A", "#FF6FB5", "#F5C94B", "#C77DFF", "#FF8FAB", "#9C6B93", "#4AC7B0"]
+COLORS = ["#B4707C", "#5C2338", "#C6A15B", "#5C7A60", "#8AA1B1", "#9C6B78", "#C08552"]
 
-SUCCESS_CHART = "#2FB380"
-DANGER_CHART = "#FF4D6D"
+SUCCESS_CHART = "#5C7A60"
+DANGER_CHART = "#A3454B"
 
-ACCENT = "#E0218A"        # rosa Barbie
-ACCENT_2 = "#FF6FB5"      # rosa chiclete
-GOLD = "#F5C94B"          # dourado suave
-ROSE = "#FFB8DD"          # rosa claro
-DANGER = "#E63950"
-WARNING = "#E0A130"
-SUCCESS = "#2FB380"
-MUTED = "#B98CAA"
-TEXT = "#3B0E2E"
-PANEL = "#ffffff"
-PANEL_2 = "#FFEAF5"
-BG_1 = "#FFF3FA"
-BG_2 = "#FFE1F0"
+ACCENT = "#5c2338"        # vinho profundo
+ACCENT_2 = "#8a4a58"      # rosé profundo
+GOLD = "#c6a15b"          # dourado champanhe
+ROSE = "#b4707c"          # rosé empoeirado
+DANGER = "#a3454b"
+WARNING = "#b8863b"
+SUCCESS = "#5c7a60"
+MUTED = "#8a6d72"
+TEXT = "#35222b"
+PANEL = "#fffdfb"
+PANEL_2 = "#f7e9e2"
+BG_1 = "#faf3ee"
+BG_2 = "#f4e2da"
 
 BG_PATTERN = (
-    "radial-gradient(circle at 6% -4%, rgba(255, 111, 181, 0.16), transparent 40%), "
-    "radial-gradient(circle at 98% 0%, rgba(245, 201, 75, 0.14), transparent 38%), "
-    "radial-gradient(circle at 50% 118%, rgba(224, 33, 138, 0.08), transparent 45%)"
+    "radial-gradient(circle at 8% -6%, rgba(198, 161, 91, 0.16), transparent 42%), "
+    "radial-gradient(circle at 96% 4%, rgba(180, 112, 124, 0.16), transparent 40%), "
+    "radial-gradient(circle at 50% 115%, rgba(92, 35, 56, 0.1), transparent 45%), "
+    "repeating-linear-gradient(115deg, rgba(92, 35, 56, 0.025) 0px, rgba(92, 35, 56, 0.025) 1px, transparent 1px, transparent 68px)"
 )
 
 st.set_page_config(page_title="Nossas Finanças", page_icon="🎀", layout="wide")
@@ -119,18 +120,18 @@ def username_taken(username: str, registered_users: dict) -> bool:
 def login_css():
     css = textwrap.dedent(f"""\
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap');
-    html, body, [class*="css"] {{ font-family: 'Quicksand', sans-serif; }}
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Jost:wght@300;400;500;600;700&display=swap');
+    html, body, [class*="css"] {{ font-family: 'Jost', sans-serif; }}
     .stApp {{ background-color: {BG_1}; background-image: {BG_PATTERN}; }}
-    .login-wrap {{ max-width: 420px; margin: 8vh auto 1.2rem auto; padding: 2.8rem 2.4rem 1.6rem 2.4rem; background: {PANEL}; border-radius: 28px; box-shadow: 0 20px 45px rgba(224, 33, 138, 0.18); border: 1px solid {ROSE}; text-align: center; }}
-    .login-wrap .icon {{ font-size: 2.8rem; margin-bottom: 0.3rem; }}
-    .login-wrap h1 {{ font-family: 'Fredoka', sans-serif; color: {ACCENT}; font-size: 2.2rem; font-weight: 600; margin: 0; }}
+    .login-wrap {{ max-width: 440px; margin: 7vh auto 1.2rem auto; padding: 2.7rem 2.3rem 1.5rem 2.3rem; background: {PANEL}; border-radius: 26px; box-shadow: 0 22px 50px rgba(92, 35, 56, 0.2); border: 1px solid rgba(198, 161, 91, 0.5); text-align: center; }}
+    .login-wrap .icon {{ font-size: 2.7rem; margin-bottom: 0.25rem; }}
+    .login-wrap h1 {{ font-family: 'Cormorant Garamond', serif; font-style: italic; color: {ACCENT}; font-size: 2.3rem; font-weight: 600; margin: 0; }}
     .login-wrap p {{ color: {MUTED}; font-size: 0.98rem; font-weight: 500; }}
-    div[data-testid="stForm"] {{ max-width: 420px; margin: 0 auto; border: none !important; background: transparent !important; padding: 0 !important; box-shadow: none !important; }}
-    label, .stTextInput label p {{ color: {ACCENT} !important; font-weight: 700 !important; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.72rem !important; }}
-    input {{ background-color: {PANEL_2} !important; color: {TEXT} !important; border-radius: 999px !important; border: 1.5px solid {ROSE} !important; padding: 0.7rem 1.1rem !important; text-align: center; }}
-    input:focus {{ border-color: {ACCENT} !important; box-shadow: 0 0 0 3px rgba(224, 33, 138, 0.18) !important; }}
-    .stButton>button, .stFormSubmitButton>button {{ border: none; border-radius: 999px; font-weight: 700; letter-spacing: 0.02em; font-size: 0.98rem; background: linear-gradient(135deg, {ACCENT}, {ACCENT_2}); color: #ffffff !important; width: 100%; padding: 0.75rem 1.1rem; box-shadow: 0 10px 22px -8px rgba(224, 33, 138, 0.55); }}
+    div[data-testid="stForm"] {{ max-width: 400px; margin: 0 auto; border: none !important; background: transparent !important; padding: 0 !important; box-shadow: none !important; }}
+    label, .stTextInput label p {{ color: {ACCENT_2} !important; font-weight: 700 !important; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.72rem !important; }}
+    input {{ background-color: {PANEL_2} !important; color: {TEXT} !important; border-radius: 14px !important; border: 1.5px solid rgba(180, 112, 124, 0.4) !important; padding: 0.7rem 1rem !important; }}
+    input:focus {{ border-color: {GOLD} !important; box-shadow: 0 0 0 3px rgba(198, 161, 91, 0.25) !important; }}
+    .stButton>button, .stFormSubmitButton>button {{ border: 1px solid {ACCENT}; border-radius: 14px; font-weight: 600; letter-spacing: 0.05em; font-size: 0.92rem; background: linear-gradient(135deg, {ACCENT}, {ACCENT_2}); color: #fbeee2 !important; width: 100%; padding: 0.75rem 1.1rem; box-shadow: 0 12px 24px -10px rgba(92, 35, 56, 0.5); }}
     </style>
     """)
     st.markdown(css, unsafe_allow_html=True)
@@ -411,7 +412,7 @@ def render_charts(transactions: list, key_prefix: str):
         if totals_by_cat:
             for idx, (name, value) in enumerate(totals_by_cat.items()):
                 color = COLORS[idx % len(COLORS)]
-                st.markdown(f'<div class="legend-item"><span style="display:flex; align-items:center;"><span class="legend-badge" style="background:{color}; border: 2px solid #ffffff; box-shadow: 0 0 0 1px {ROSE};"></span>{name}</span><strong>{format_currency(value)}</strong></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="legend-item"><span style="display:flex; align-items:center;"><span class="legend-badge" style="background:{color}; border: 2px solid {TEXT};"></span>{name}</span><strong>{format_currency(value)}</strong></div>', unsafe_allow_html=True)
 
 
 # ============================================================================
@@ -420,62 +421,64 @@ def render_charts(transactions: list, key_prefix: str):
 
 main_css = textwrap.dedent(f"""\
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap');
-html, body, [class*="css"] {{ font-family: 'Quicksand', sans-serif; }}
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Jost:wght@300;400;500;600;700&display=swap');
+html, body, [class*="css"] {{ font-family: 'Jost', sans-serif; }}
 .stApp {{ background-color: {BG_1}; background-image: {BG_PATTERN}; color: {TEXT}; }}
 .block-container {{ max-width: 1180px; padding-top: 1.6rem; }}
-.hero {{ padding: 2.6rem 2.8rem; border-radius: 28px; background: linear-gradient(120deg, {ACCENT}, {ACCENT_2}); border: none; margin-bottom: 2rem; box-shadow: 0 16px 36px -10px rgba(224, 33, 138, 0.4); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }}
-.hero .eyebrow {{ margin: 0 0 0.4rem; text-transform: uppercase; letter-spacing: 0.28rem; color: #ffffff; opacity: 0.85; font-weight: 700; font-size: 0.78rem; }}
-.hero h1 {{ font-family: 'Fredoka', sans-serif; margin: 0.1rem 0; font-size: 2.8rem; color: #ffffff; font-weight: 600; }}
-.hero p.subtitle {{ color: rgba(255,255,255,0.92); max-width: 620px; margin: 0; font-weight: 500; font-size: 1rem; line-height: 1.55; }}
-.hero .hero-icon {{ font-size: 3.4rem; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.18)); }}
-.panel-title {{ font-family: 'Fredoka', sans-serif; font-size: 1.5rem; font-weight: 600; color: {ACCENT}; margin-bottom: 1.1rem; }}
-div[data-testid="stVerticalBlockBorderWrapper"] {{ background: {PANEL} !important; border: 1.5px solid {ROSE} !important; border-radius: 24px !important; box-shadow: 0 10px 26px -16px rgba(224, 33, 138, 0.28); padding: 0.5rem; }}
-div[data-testid="stForm"] {{ background: {PANEL_2} !important; backdrop-filter: none !important; border: 1.5px dashed {ROSE} !important; border-radius: 20px !important; padding: 1.3rem 1.5rem !important; box-shadow: none; }}
-div[data-testid="stForm"] label, div[data-testid="stForm"] .stSelectbox label p, div[data-testid="stForm"] .stTextInput label p, div[data-testid="stForm"] .stNumberInput label p, div[data-testid="stForm"] .stDateInput label p {{ color: {ACCENT} !important; font-weight: 700 !important; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.7rem !important; }}
-div[data-testid="stForm"] input, div[data-testid="stForm"] textarea, div[data-testid="stForm"] select, div[data-testid="stForm"] .stSelectbox div[data-baseweb="select"] > div {{ background-color: {PANEL} !important; color: {TEXT} !important; font-weight: 500 !important; border-radius: 999px !important; border: 1.5px solid {ROSE} !important; }}
-div[data-testid="stMetric"] {{ background: {PANEL_2}; border-radius: 20px; padding: 1.1rem; border: 1.5px solid {ROSE}; box-shadow: none; }}
-div[data-testid="stMetricLabel"] {{ color: {MUTED}; font-weight: 700; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; }}
-div[data-testid="stMetricValue"] {{ color: {ACCENT}; font-weight: 700; font-size: 1.7rem; font-family: 'Fredoka', sans-serif; }}
-.stButton>button, .stFormSubmitButton>button {{ border: none; border-radius: 999px; font-weight: 700; letter-spacing: 0.02em; font-size: 0.92rem; background: linear-gradient(135deg, {ACCENT}, {ACCENT_2}); color: #ffffff; padding: 0.65rem 1.4rem; box-shadow: 0 10px 20px -8px rgba(224, 33, 138, 0.5); }}
-.stButton>button:hover, .stFormSubmitButton>button:hover {{ color: #ffffff; transform: translateY(-1px); box-shadow: 0 14px 24px -10px rgba(224, 33, 138, 0.6); transition: all 0.2s ease; }}
-button[kind="secondary"] {{ background: {PANEL} !important; border: 1.5px solid {ROSE} !important; color: {ACCENT} !important; box-shadow: none !important; }}
-label, .stSelectbox label p, .stTextInput label p, .stNumberInput label p {{ font-weight: 700 !important; color: {ACCENT} !important; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.7rem !important; }}
-input, textarea, select, .stSelectbox div[data-baseweb="select"] > div {{ background-color: {PANEL} !important; color: {TEXT} !important; border-radius: 999px !important; border: 1.5px solid {ROSE} !important; font-weight: 500 !important; }}
-.transaction-item, .account-item, .investment-item {{ padding: 1rem 1.2rem; border-radius: 18px; background: {PANEL_2}; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; border: 1px solid {ROSE}; }}
-.mini-row {{ display:flex; justify-content:space-between; align-items:center; gap:0.75rem; padding:0.6rem 0.9rem; border-radius:14px; background:{PANEL_2}; border:1px solid {ROSE}; margin-bottom:0.45rem; }}
+.hero {{ position: relative; padding: 2.9rem 2.8rem; border-radius: 26px; background: linear-gradient(150deg, rgba(255,253,251,0.55), rgba(255,253,251,0.15)), linear-gradient(135deg, {ACCENT}, {ACCENT_2} 55%, {ROSE}); border: 1px solid rgba(198, 161, 91, 0.55); margin-bottom: 2rem; box-shadow: 0 18px 42px -14px rgba(92, 35, 56, 0.4); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; overflow: hidden; }}
+.hero::before {{ content: ""; position: absolute; inset: 9px; border: 1px solid rgba(230, 211, 166, 0.5); border-radius: 20px; pointer-events: none; }}
+.hero .eyebrow {{ margin: 0 0 0.5rem; text-transform: uppercase; letter-spacing: 0.3rem; color: {GOLD}; font-weight: 600; font-size: 0.8rem; position: relative; z-index: 1; }}
+.hero h1 {{ font-family: 'Cormorant Garamond', serif; font-style: italic; margin: 0.1rem 0; font-size: 2.9rem; color: #fffaf5; font-weight: 600; position: relative; z-index: 1; }}
+.hero p.subtitle {{ color: rgba(255,250,245,0.88); max-width: 620px; margin: 0; font-weight: 300; font-size: 1.02rem; line-height: 1.6; position: relative; z-index: 1; }}
+.hero .hero-icon {{ font-size: 3.6rem; filter: drop-shadow(0 4px 14px rgba(0,0,0,0.22)); position: relative; z-index: 1; }}
+.panel-title {{ font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.6rem; font-weight: 600; color: {ACCENT}; margin-bottom: 1.1rem; border-bottom: 1px solid rgba(180, 112, 124, 0.25); padding-bottom: 0.55rem; }}
+div[data-testid="stVerticalBlockBorderWrapper"] {{ background: {PANEL} !important; border: 1px solid rgba(180, 112, 124, 0.22) !important; border-left: 4px solid {GOLD} !important; border-radius: 20px !important; box-shadow: 0 12px 28px -18px rgba(92, 35, 56, 0.35); padding: 0.5rem; }}
+div[data-testid="stForm"] {{ background: {PANEL_2} !important; backdrop-filter: none !important; border: 1px solid rgba(198, 161, 91, 0.45) !important; border-radius: 16px !important; padding: 1.25rem 1.5rem !important; box-shadow: none; }}
+div[data-testid="stForm"] label, div[data-testid="stForm"] .stSelectbox label p, div[data-testid="stForm"] .stTextInput label p, div[data-testid="stForm"] .stNumberInput label p, div[data-testid="stForm"] .stDateInput label p {{ color: {ACCENT_2} !important; font-weight: 600 !important; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.72rem !important; }}
+div[data-testid="stForm"] input, div[data-testid="stForm"] textarea, div[data-testid="stForm"] select, div[data-testid="stForm"] .stSelectbox div[data-baseweb="select"] > div {{ background-color: {PANEL} !important; color: {TEXT} !important; font-weight: 500 !important; border-radius: 12px !important; border: 1px solid rgba(180, 112, 124, 0.35) !important; }}
+div[data-testid="stMetric"] {{ background: {PANEL_2}; border-radius: 16px; padding: 1.05rem; border: 1px solid rgba(180, 112, 124, 0.22); border-left: 3px solid {GOLD}; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }}
+div[data-testid="stMetricLabel"] {{ color: {MUTED}; font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }}
+div[data-testid="stMetricValue"] {{ color: {ACCENT}; font-weight: 700; font-size: 1.65rem; font-family: 'Cormorant Garamond', serif; }}
+.stButton>button, .stFormSubmitButton>button {{ border: 1px solid {ACCENT}; border-radius: 12px; font-weight: 600; letter-spacing: 0.05em; font-size: 0.9rem; background: linear-gradient(135deg, {ACCENT}, {ACCENT_2}); color: #fbeee2; padding: 0.62rem 1.3rem; box-shadow: 0 8px 18px -8px rgba(92, 35, 56, 0.4); }}
+.stButton>button:hover, .stFormSubmitButton>button:hover {{ color: #fbeee2; transform: translateY(-1px); box-shadow: 0 14px 26px -12px rgba(92, 35, 56, 0.5); transition: all 0.2s ease; }}
+button[kind="secondary"] {{ background: transparent !important; border: 1px solid {ROSE} !important; color: {ACCENT_2} !important; box-shadow: none !important; }}
+label, .stSelectbox label p, .stTextInput label p, .stNumberInput label p {{ font-weight: 600 !important; color: {ACCENT_2} !important; text-transform: uppercase; letter-spacing: 0.07em; font-size: 0.72rem !important; }}
+input, textarea, select, .stSelectbox div[data-baseweb="select"] > div {{ background-color: {PANEL} !important; color: {TEXT} !important; border-radius: 12px !important; border: 1px solid rgba(180, 112, 124, 0.35) !important; font-weight: 500 !important; }}
+.transaction-item, .account-item, .investment-item {{ padding: 1rem 1.2rem; border-radius: 14px; background: {PANEL_2}; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; border: 1px solid rgba(180, 112, 124, 0.2); }}
+.mini-row {{ display:flex; justify-content:space-between; align-items:center; gap:0.75rem; padding:0.55rem 0.8rem; border-radius:10px; background:{PANEL_2}; border:1px solid rgba(180,112,124,0.18); margin-bottom:0.45rem; }}
 .mini-row .t-meta strong {{ font-size:0.9rem; }}
 .mini-row .t-meta span {{ font-size:0.76rem; }}
 .mini-row .t-amount {{ font-size:0.92rem; }}
-div[data-testid="stTabs"] button[data-baseweb="tab"] {{ font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 600; color: {MUTED}; }}
+div[data-testid="stTabs"] button[data-baseweb="tab"] {{ font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.15rem; font-weight: 600; color: {MUTED}; }}
 div[data-testid="stTabs"] button[aria-selected="true"] {{ color: {ACCENT} !important; }}
-div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {{ background-color: {ACCENT} !important; height: 3px; border-radius: 3px; }}
-div[data-testid="stTabs"] div[data-baseweb="tab-border"] {{ background-color: {ROSE} !important; }}
-.t-meta strong {{ display:block; color: {TEXT}; font-size: 1.02rem; font-weight: 600; }}
-.t-meta span {{ color: {MUTED}; font-size: 0.88rem; font-weight: 500; }}
-.t-amount {{ font-weight: 700; font-size: 1.08rem; white-space: nowrap; font-family: 'Fredoka', sans-serif; }}
+div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {{ background-color: {GOLD} !important; height: 3px; }}
+div[data-testid="stTabs"] div[data-baseweb="tab-border"] {{ background-color: rgba(180, 112, 124, 0.2) !important; }}
+.t-meta strong {{ display:block; color: {TEXT}; font-size: 1rem; font-weight: 600; }}
+.t-meta span {{ color: {MUTED}; font-size: 0.85rem; font-weight: 400; }}
+.t-amount {{ font-weight: 700; font-size: 1.05rem; white-space: nowrap; font-family: 'Cormorant Garamond', serif; }}
 .t-amount.income {{ color: {SUCCESS}; }}
 .t-amount.expense {{ color: {DANGER}; }}
-.acc-balance {{ font-weight: 700; font-size: 1.2rem; color: {SUCCESS}; font-family: 'Fredoka', sans-serif; }}
+.acc-balance {{ font-weight: 700; font-size: 1.15rem; color: {SUCCESS}; font-family: 'Cormorant Garamond', serif; }}
 .acc-balance.negative {{ color: {DANGER}; }}
-.empty-state {{ padding: 1.6rem; border-radius: 18px; background: {PANEL_2}; color: {MUTED}; text-align: center; font-weight: 600; font-family: 'Fredoka', sans-serif; font-size: 1.05rem; border: 1.5px dashed {ROSE}; }}
-.legend-item {{ display:flex; justify-content: space-between; color: {TEXT}; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.98rem; }}
-.legend-badge {{ width: 12px; height: 12px; border-radius: 50%; display:inline-block; margin-right: 0.6rem; }}
-.inv-card {{ padding: 1.2rem 1.4rem; border-radius: 20px; background: {PANEL_2}; border: 1px solid {ROSE}; margin-bottom: 1rem; }}
+.empty-state {{ padding: 1.5rem; border-radius: 14px; background: {PANEL_2}; color: {MUTED}; text-align: center; font-weight: 500; font-style: italic; font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; border: 1px dashed rgba(198, 161, 91, 0.5); }}
+.legend-item {{ display:flex; justify-content: space-between; color: {TEXT}; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }}
+.legend-badge {{ width: 10px; height: 10px; border-radius: 2px; display:inline-block; margin-right: 0.55rem; transform: rotate(45deg); }}
+.inv-card {{ padding: 1.2rem 1.4rem; border-radius: 18px; background: {PANEL_2}; border: 1px solid rgba(180, 112, 124, 0.25); margin-bottom: 1rem; }}
 .inv-card .inv-top {{ display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }}
-.inv-card .inv-name {{ font-weight: 700; color: {TEXT}; font-size: 1.12rem; }}
-.inv-card .inv-meta {{ color: {MUTED}; font-size: 0.88rem; font-weight: 500; margin-top: 0.2rem; }}
-.inv-badge {{ display:inline-block; padding: 0.25rem 0.8rem; border-radius: 999px; background: {ACCENT}; color: #ffffff; font-size: 0.76rem; font-weight: 700; }}
-.inv-value {{ font-size: 1.3rem; font-weight: 700; color: {ACCENT}; text-align: right; font-family: 'Fredoka', sans-serif; }}
-.inv-gain {{ font-size: 0.88rem; font-weight: 700; text-align: right; margin-top: 0.2rem; }}
+.inv-card .inv-name {{ font-weight: 600; color: {TEXT}; font-size: 1rem; }}
+.inv-card .inv-meta {{ color: {MUTED}; font-size: 0.85rem; font-weight: 400; margin-top: 0.2rem; }}
+.inv-badge {{ display:inline-block; padding: 0.25rem 0.7rem; border-radius: 999px; background: {ACCENT}; color: #fbeee2; font-size: 0.68rem; font-weight: 700; }}
+.inv-value {{ font-family: 'Cormorant Garamond', serif; font-weight: 700; white-space: nowrap; font-size: 1.15rem; color: {ACCENT}; text-align: right; }}
+.inv-gain {{ font-size: 0.85rem; font-weight: 500; text-align: right; margin-top: 0.2rem; }}
 .inv-gain.positive {{ color: {SUCCESS}; }}
 .inv-gain.neutral {{ color: {MUTED}; }}
-.report-card {{ padding: 1.4rem 1.6rem; border-radius: 22px; background: linear-gradient(120deg, {ACCENT}, {ACCENT_2}); margin-bottom: 1.2rem; box-shadow: 0 12px 26px -12px rgba(224, 33, 138, 0.45); }}
-.report-card h3 {{ font-family: 'Fredoka', sans-serif; color: #ffffff; margin: 0 0 0.3rem; font-size: 1.4rem; }}
-.report-card p {{ color: rgba(255,255,255,0.9); margin: 0; font-weight: 500; }}
-section[data-testid="stSidebar"] {{ background: {PANEL_2}; border-right: 1px solid {ROSE}; }}
+.report-card {{ position: relative; padding: 1.5rem 1.8rem; border-radius: 20px; background: linear-gradient(135deg, {ACCENT}, {ACCENT_2} 60%, {ROSE}); border: 1px solid rgba(198, 161, 91, 0.55); margin-bottom: 1.3rem; box-shadow: 0 14px 30px -14px rgba(92, 35, 56, 0.45); overflow: hidden; }}
+.report-card::before {{ content: ""; position: absolute; inset: 7px; border: 1px solid rgba(230, 211, 166, 0.45); border-radius: 15px; pointer-events: none; }}
+.report-card h3 {{ font-family: 'Cormorant Garamond', serif; font-style: italic; color: #fffaf5; margin: 0 0 0.3rem; font-size: 1.5rem; position: relative; z-index: 1; }}
+.report-card p {{ color: rgba(255,250,245,0.85); margin: 0; font-weight: 400; position: relative; z-index: 1; }}
+section[data-testid="stSidebar"] {{ background: {PANEL_2}; border-right: 1px solid rgba(180, 112, 124, 0.25); }}
 .happy-princess, .sad-princess {{ position: fixed; z-index: 999999 !important; pointer-events: none; }}
-.happy-princess img, .sad-princess img {{ display: block; width: 150px; height: auto; filter: drop-shadow(0 10px 18px rgba(224,33,138,0.35)) drop-shadow(0 0 16px rgba(245,201,75,0.4)); }}
+.happy-princess img, .sad-princess img {{ display: block; width: 150px; height: auto; filter: drop-shadow(0 10px 20px rgba(92,35,56,0.35)) drop-shadow(0 0 18px rgba(198,161,91,0.35)); }}
 .happy-princess {{ bottom: 20px; left: -300px; animation: runAcross 4.5s cubic-bezier(0.33,0,0.2,1) forwards; }}
 .sad-princess {{ bottom: -350px; right: 8%; animation: riseAndCry 5.5s ease-in-out forwards; }}
 @keyframes runAcross {{ 0% {{ left: -300px; opacity: 0; }} 10% {{ opacity: 1; }} 100% {{ left: 120%; opacity: 1; visibility: hidden; }} }}
@@ -494,8 +497,8 @@ st.markdown(main_css, unsafe_allow_html=True)
 with st.sidebar:
     sidebar_html = textwrap.dedent(f"""\
     <div style="text-align:center; padding: 1rem 0 1.5rem 0;">
-        <div style="font-size:3rem;">💖</div>
-        <div style="font-family:'Fredoka', sans-serif; font-weight:600; font-size:1.6rem; color:{ACCENT};">Nossas Finanças</div>
+        <div style="font-size:3rem;">👑</div>
+        <div style="font-family:'Cormorant Garamond', serif; font-weight:600; font-size:1.6rem; color:{ACCENT};">Nossas Finanças</div>
         <div style="color:{MUTED}; font-size:0.95rem; font-weight: 500;">Olá, {st.session_state.get('username', '')}!</div>
     </div>
     """)
@@ -510,7 +513,7 @@ hero_html = textwrap.dedent("""\
         <h1>Nossas Finanças</h1>
         <p class="subtitle">Organize gastos, ganhos, investimentos e acompanhe o patrimônio com clareza.</p>
     </div>
-    <div class="hero-icon">💖</div>
+    <div class="hero-icon">👑</div>
 </div>
 """)
 st.markdown(hero_html, unsafe_allow_html=True)
@@ -566,7 +569,7 @@ with tab_atual:
             st.markdown(
                 f'<div style="text-align:right; padding-top:0.4rem;">'
                 f'<div style="font-size:0.68rem; text-transform:uppercase; letter-spacing:0.08em; color:{MUTED}; font-weight:600;">Mês corrente</div>'
-                f'<div style="font-family:\'Fredoka\', sans-serif; font-size:1.3rem; color:{ACCENT}; font-weight:600;">{format_month(state["period"])}</div>'
+                f'<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.3rem; color:{ACCENT}; font-weight:600;">{format_month(state["period"])}</div>'
                 f'</div>',
                 unsafe_allow_html=True,
             )
@@ -857,7 +860,7 @@ with tab_historico:
                 render_charts(month_transactions, key_prefix=f"hist_{selected_month}")
 
                 st.write("")
-                st.markdown(f'<div style="font-family:\'Fredoka\', sans-serif; font-size:1.25rem; color:{ACCENT}; margin-bottom:0.6rem;">Gastos e Ganhos de {format_month(selected_month)}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.25rem; color:{ACCENT}; margin-bottom:0.6rem;">Gastos e Ganhos de {format_month(selected_month)}</div>', unsafe_allow_html=True)
                 if not month_transactions:
                     st.markdown('<div class="empty-state">Nenhuma movimentação nesse mês.</div>', unsafe_allow_html=True)
                 else:

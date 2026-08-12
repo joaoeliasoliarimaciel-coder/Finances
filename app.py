@@ -449,8 +449,9 @@ input, textarea, select, .stSelectbox div[data-baseweb="select"] > div {{ backgr
 .mini-row .t-meta strong {{ font-size:0.9rem; }}
 .mini-row .t-meta span {{ font-size:0.76rem; }}
 .mini-row .t-amount {{ font-size:0.92rem; }}
-div[data-testid="stTabs"] button[data-baseweb="tab"] {{ font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.15rem; font-weight: 600; color: {MUTED}; }}
-div[data-testid="stTabs"] button[aria-selected="true"] {{ color: {ACCENT} !important; }}
+div[data-testid="stTabs"] button[data-baseweb="tab"] {{ font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.15rem; font-weight: 600; }}
+div[data-testid="stTabs"] button[data-baseweb="tab"] p {{ color: {ACCENT_2} !important; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.15rem; font-weight: 600; opacity: 1 !important; }}
+div[data-testid="stTabs"] button[aria-selected="true"] p {{ color: {ACCENT} !important; font-weight: 700 !important; }}
 div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {{ background-color: {GOLD} !important; height: 3px; }}
 div[data-testid="stTabs"] div[data-baseweb="tab-border"] {{ background-color: rgba(180, 112, 124, 0.2) !important; }}
 .t-meta strong {{ display:block; color: {TEXT}; font-size: 1rem; font-weight: 600; }}

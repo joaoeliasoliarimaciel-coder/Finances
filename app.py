@@ -423,6 +423,13 @@ main_css = textwrap.dedent(f"""\
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Jost:wght@300;400;500;600;700&display=swap');
 html, body, [class*="css"] {{ font-family: 'Jost', sans-serif; }}
+html {{ color-scheme: light !important; }}
+.stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
+    --background-color: {BG_1} !important;
+    --secondary-background-color: {PANEL_2} !important;
+    --text-color: {TEXT} !important;
+    --primary-color: {ACCENT} !important;
+}}
 .stApp {{ background-color: {BG_1}; background-image: {BG_PATTERN}; color: {TEXT}; }}
 .block-container {{ max-width: 1180px; padding-top: 1.6rem; }}
 .hero {{ position: relative; padding: 2.9rem 2.8rem; border-radius: 26px; background: linear-gradient(150deg, rgba(255,253,251,0.55), rgba(255,253,251,0.15)), linear-gradient(135deg, {ACCENT}, {ACCENT_2} 55%, {ROSE}); border: 1px solid rgba(198, 161, 91, 0.55); margin-bottom: 2rem; box-shadow: 0 18px 42px -14px rgba(92, 35, 56, 0.4); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; overflow: hidden; }}
@@ -450,8 +457,12 @@ input, textarea, select, .stSelectbox div[data-baseweb="select"] > div {{ backgr
 .mini-row .t-meta span {{ font-size:0.76rem; }}
 .mini-row .t-amount {{ font-size:0.92rem; }}
 div[data-testid="stTabs"] button[data-baseweb="tab"] {{ font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.15rem; font-weight: 600; }}
-div[data-testid="stTabs"] button[data-baseweb="tab"] p {{ color: {ACCENT_2} !important; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.15rem; font-weight: 600; opacity: 1 !important; }}
-div[data-testid="stTabs"] button[aria-selected="true"] p {{ color: {ACCENT} !important; font-weight: 700 !important; }}
+div[data-testid="stTabs"] button[data-baseweb="tab"] p,
+div[data-testid="stTabs"] button[data-baseweb="tab"] span,
+div[data-testid="stTabs"] button[data-baseweb="tab"] div {{ color: {ACCENT_2} !important; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.15rem; font-weight: 600; opacity: 1 !important; -webkit-text-fill-color: {ACCENT_2} !important; }}
+div[data-testid="stTabs"] button[aria-selected="true"] p,
+div[data-testid="stTabs"] button[aria-selected="true"] span,
+div[data-testid="stTabs"] button[aria-selected="true"] div {{ color: {ACCENT} !important; font-weight: 700 !important; -webkit-text-fill-color: {ACCENT} !important; }}
 div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {{ background-color: {GOLD} !important; height: 3px; }}
 div[data-testid="stTabs"] div[data-baseweb="tab-border"] {{ background-color: rgba(180, 112, 124, 0.2) !important; }}
 .t-meta strong {{ display:block; color: {TEXT}; font-size: 1rem; font-weight: 600; }}
